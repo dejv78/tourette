@@ -78,7 +78,7 @@ LIBPATH="projects/${LIBRARY_NAME}"
 cp -u ${LIBPATH}/package.json ${LIBPATH}/package-orig.json
 
 PACKAGE="@$SCOPE_NAME/$LIBRARY_NAME"
-HOMEPAGE="https://$SCOPE_NAME.github.io/$LIBRARY_NAME"
+HOMEPAGE="https://$SCOPE_NAME.github.io/$LIBRARY_NAME/"
 REPO="https://github.com/$SCOPE_NAME/$LIBRARY_NAME.git"
 
 LIBFILTERS="{name: \$pkg, version, keywords: [\"angular\"], license: \"MIT\", homepage: \$page, repository: {type: \"git\", url: \$repo}, peerDependencies}"
