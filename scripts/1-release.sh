@@ -27,10 +27,12 @@ elif [[ "$1" == "patch" ]] || [[ "$1" == "minor" ]] || [[ "$1" == "major" ]]; th
 
   PREFIX="--release-as $1"
 
-  if [[ "$2" == "alpha" ]] || [[ "$2" == "beta" ]] || [[ "$2" == "rc" ]]; then
-    PREFIX="$PREFIX --prerelease $2"
-  else
-    show_usage
+  if ! [[ -z "$2" ]]; then
+    if  [[ "$2" == "alpha" ]] || [[ "$2" == "beta" ]] || [[ "$2" == "rc" ]]; then
+      PREFIX="$PREFIX --prerelease $2"
+    else
+      show_usage
+    fi
   fi
   npm run release -- ${PREFIX}
   echo "$PREFIX"
