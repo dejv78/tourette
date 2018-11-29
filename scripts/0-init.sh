@@ -110,6 +110,8 @@ echo "$LIBPATH/README.md" >> .gitignore
 echo "*.tmp" >> .gitignore
 echo "*.log" >> .gitignore
 echo "*.bak" >> .gitignore
+echo ".attach_pid*" >> .gitignore
+
 
 echo "****************************"
 echo ".gitignore: GENERATED"
