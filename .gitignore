@@ -1,0 +1,23 @@
+# IDEs
+.idea
+*.iml
+*.classpath
+*.project
+*.launch
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Generated artifacts
+node_modules
+dist
+
+# Working files
+package-orig.json
+projects/lex/README.md
+*.tmp
+*.log
+*.bak
+.attach_pid*

@@ -1,0 +1,17 @@
+{
+  "name": "@tourette/lex",
+  "version": "0.0.1",
+  "keywords": [
+    "angular"
+  ],
+  "license": "MIT",
+  "homepage": "https://tourette.github.io/lex/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tourette/lex.git"
+  },
+  "peerDependencies": {
+    "@angular/common": "^7.0.0",
+    "@angular/core": "^7.0.0"
+  }
+}
