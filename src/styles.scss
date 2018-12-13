@@ -1,1 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'styles/common';
+
+html, body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  @include flexed(column, stretch);
+}
+
+mat-tab-group {
+  flex-grow: 1;
+  @include flexed(column, stretch)
+}
+.mat-tab-body-wrapper {
+  flex-grow: 1 !important;
+  @include flexed(column, stretch)
+}
+mat-tab-body.mat-tab-body {
+  flex-grow: 1;
+  @include flexed(column, stretch)
+}
+.mat-tab-body-content {
+  flex-grow: 1;
+  @include flexed(column, center)
+}

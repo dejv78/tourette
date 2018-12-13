@@ -1,0 +1,7 @@
+@import 'common';
+
+:host {
+  padding: $margin-l;
+  flex-grow: 1;
+  @include area();
+}

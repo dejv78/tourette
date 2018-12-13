@@ -1,0 +1,69 @@
+@import 'common';
+
+:host {
+  height: 100vh;
+  @include flexed(column, stretch);
+}
+
+.minor {
+  opacity: 0.5;
+}
+
+.framed {
+  border: none;
+}
+
+.fill {
+  flex-grow: 1;
+  @include flexed(column, stretch);
+  margin: $margin-l 0;
+}
+
+.full {
+  @include flexed(column, stretch);
+  flex-grow: 0;
+}
+
+.top {
+  @media screen and (min-width: $w-lim-double) {
+    @include fixed-height(144px);
+  }
+}
+
+.bottom {
+  @media screen and (min-width: $w-lim-double) {
+    @include fixed-height(36px);
+  }
+}
+
+
+.workspace {
+  flex-grow: 1;
+  width: 100%;
+  min-height: $h-workspace-single;
+  @include flexed(column, stretch);
+
+  @media screen and (min-width: $w-lim-double) {
+    @include flexed(row, stretch);
+    width: $w-workspace-narrow;
+    min-height: $h-workspace-double;
+  }
+  @media screen and (min-width: $w-lim-wider) {
+    width: $w-workspace-wide;
+  }
+}
+
+.column {
+  flex: 1 1 50%;
+  padding: $margin-m;
+  @include flexed(column, stretch);
+}
+
+textarea {
+  flex-grow: 1;
+  @include area();
+  color: inherit;
+  outline: none;
+  resize: none;
+}
+

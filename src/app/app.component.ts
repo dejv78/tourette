@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +6,16 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'tourette';
+
+  text: string = '';
+  result: string = '';
+
+  onSongChanged(text: string) {
+    console.log('Text: ' + text);
+    this.text = text;
+  }
+
+  modify() {
+    this.result = this.text;
+  }
 }

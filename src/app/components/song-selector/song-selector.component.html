@@ -1,0 +1,2 @@
+<button mat-flat-button color="warn" (click)="setSong(null)">Vymazat</button>
+<button mat-flat-button *ngFor="let song of songs" (click)="setSong(song)">{{song.artist ? song.artist + ' - ' + song.title : song.title}}</button>

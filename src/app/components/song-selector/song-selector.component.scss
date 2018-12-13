@@ -1,0 +1,10 @@
+@import 'common';
+
+:host {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+button {
+  margin: $margin-xs
+}
