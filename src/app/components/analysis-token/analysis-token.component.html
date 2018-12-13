@@ -1,0 +1,11 @@
+<div class="header" [ngClass]="cls" [matTooltip]="tooltip">
+  <span class="tabbed" [ngClass]="cls">{{token.kind}}</span>
+  <span class="flexible"></span>
+  <span *ngIf="token.syllables" class="colored" [ngClass]="cls">{{token.syllables}}</span>
+</div>
+<div class="text" [ngClass]="cls">
+  {{token.text}}
+</div>
+<div class="footer" [ngClass]="cls">
+  <span class="colored" [ngClass]="cls" *ngIf="details">{{details}}</span>&nbsp;
+</div>

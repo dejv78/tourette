@@ -5,3 +5,10 @@
   flex-grow: 1;
   @include area();
 }
+
+.line {
+  @include flexed(row, center);
+  flex-grow: 0;
+  justify-content: flex-start;
+  margin: $margin-xs 0;
+}

@@ -1,3 +1,4 @@
-<p>
-  analysis works!
-</p>
+<div class="line" *ngFor="let line of analysis.lines">
+  <app-analysis-token *ngFor="let token of line.tokens" [token]="token"></app-analysis-token>
+  <!--<div *ngFor="let token of line.tokens">{{token.text}}</div>-->
+</div>

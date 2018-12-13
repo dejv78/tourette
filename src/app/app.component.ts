@@ -1,4 +1,6 @@
 import {Component} from '@angular/core';
+import {AnalysisService} from '../../projects/lex/src/lib/analysis.service';
+import {AnalysisResult} from '../../projects/lex/src/lib/model/analysis-result';
 
 @Component({
   selector: 'app-root',
@@ -8,14 +10,18 @@ import {Component} from '@angular/core';
 export class AppComponent {
 
   text: string = '';
+  analysis: AnalysisResult = new AnalysisResult([]);
   result: string = '';
 
-  onSongChanged(text: string) {
-    console.log('Text: ' + text);
+  constructor(private analyzer: AnalysisService) {
+  }
+
+  onTextChanged(text: string) {
     this.text = text;
   }
 
-  modify() {
+  async modify() {
+    this.analysis = await this.analyzer.analyze(this.text, null);
     this.result = this.text;
   }
 }

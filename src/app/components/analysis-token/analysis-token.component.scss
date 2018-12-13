@@ -1,0 +1,85 @@
+@import 'common';
+
+:host {
+  @include flexed(column, stretch);
+  flex-grow: 0;
+  margin: $margin-xs;
+  min-width: 60px;
+}
+
+$border-width: 1px;
+$col-kind-default: grey;
+$col-kind-punctuation: silver;
+$col-kind-empty: darkslateblue;
+$col-kind-conjunction: darksalmon;
+$col-kind-preposition: lightcoral;
+$col-kind-number: powderblue;
+$col-kind-pronoun: aquamarine;
+$col-kind-part: lavender;
+
+
+@mixin kind-color($prop) {
+  #{$prop}: $col-kind-default;
+  &.punct {
+    #{$prop}: $col-kind-punctuation;
+  }
+  &.empty {
+    #{$prop}: $col-kind-empty;
+  }
+  &.conj {
+    #{$prop}: $col-kind-conjunction;
+  }
+  &.prep {
+    #{$prop}: $col-kind-preposition;
+  }
+  &.num {
+    #{$prop}: $col-kind-number;
+  }
+  &.pronoun {
+    #{$prop}: $col-kind-pronoun;
+  }
+  &.part {
+    #{$prop}: $col-kind-part;
+  }
+}
+
+
+.header {
+  @include flexed(row, flex-end);
+  @include kind-color(border-color);
+  border-bottom-style: solid;
+  border-bottom-width: $border-width;
+  font-size: 0.75em;
+}
+
+.text {
+  background-color: mix($col-background-dk, black, 70);
+  @include kind-color(color);
+}
+
+.footer {
+  @include flexed(row, flex-start);
+  @include kind-color(border-color);
+  font-size: 0.75em;
+  border-top-style: solid;
+  border-top-width: $border-width;
+
+}
+
+.tabbed {
+  padding: 0 2px;
+  color: $col-background_dk;
+  font-weight: bolder;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  flex-grow: 0;
+  @include kind-color(background-color);
+}
+
+.colored {
+  @include kind-color(color);
+}
+
+.flexible {
+  flex: 1 0 $margin-s;
+}

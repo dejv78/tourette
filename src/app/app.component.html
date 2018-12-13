@@ -7,11 +7,11 @@
     <div class="framed workspace">
       <div class="framed column">
         <div class="framed top">
-          <app-song-selector (onSongChanged)="onSongChanged($event)"></app-song-selector>
+          <app-song-selector (onSongChanged)="onTextChanged($event)"></app-song-selector>
         </div>
         <div class="framed fill">
           <!--suppress HtmlFormInputWithoutLabel -->
-          <textarea>{{text}}</textarea>
+          <textarea #ta (change)="onTextChanged(ta.value)" (keyup)="onTextChanged(ta.value)" (paste)="onTextChanged(ta.value)">{{text}}</textarea>
         </div>
         <div class="framed full bottom">
           <button mat-flat-button color="primary" (click)="modify()">Upravit</button>
@@ -33,7 +33,7 @@
   <mat-tab label="Analýza">
     <div class="workspace">
       <div class="framed column">
-        <app-analysis></app-analysis>
+        <app-analysis [analysis]="analysis"></app-analysis>
       </div>
     </div>
   </mat-tab>
