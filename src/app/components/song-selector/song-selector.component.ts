@@ -13,7 +13,7 @@ export class SongSelectorComponent {
   @Output()
   onSongChanged: EventEmitter<string> = new EventEmitter();
 
-  private songs: Song[];
+  public songs: Song[];
 
   constructor(@Inject(DATA_SONGS) songFile: FileLoaderService) {
     this.songs = songFile.data.songs;
