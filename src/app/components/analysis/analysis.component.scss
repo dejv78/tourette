@@ -4,6 +4,7 @@
   padding: $margin-l;
   flex-grow: 1;
   @include area();
+  overflow: auto;
 }
 
 .line {
