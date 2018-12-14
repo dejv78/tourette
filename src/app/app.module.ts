@@ -21,7 +21,7 @@ export function init(songs: FileLoaderService) {
     return new Promise(async(resolve) => {
       try {
         await Promise.all([
-          songs.load('assets/songs.json'),
+          songs.load('https://dejv78.github.io/tourette/assets/songs.json', '/assets/songs.json'),
         ]);
         resolve(true);
       } catch (error) {
