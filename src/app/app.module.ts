@@ -26,9 +26,9 @@ export function init(songs: FileLoaderService, dict: FileLoaderService, dictp: F
       console.log('LOC ' + location);
       try {
         await Promise.all([
-          songs.load(location.origin + 'assets/songs.json'),
-          dict.load(location.origin + 'assets/dictionary.json'),
-          dictp.load(location.origin + 'assets/dictionary_prepositions.json'),
+          songs.load(location + 'assets/songs.json'),
+          dict.load(location + 'assets/dictionary.json'),
+          dictp.load(location + 'assets/dictionary_prepositions.json'),
         ]);
         resolve(true);
       } catch (error) {
