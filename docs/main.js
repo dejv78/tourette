@@ -2369,9 +2369,9 @@ function init(songs, dict, dictp) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, Promise.all([
-                                songs.load('/assets/songs.json'),
-                                dict.load('/assets/dictionary.json'),
-                                dictp.load('/assets/dictionary_prepositions.json'),
+                                songs.load('assets/songs.json'),
+                                dict.load('assets/dictionary.json'),
+                                dictp.load('assets/dictionary_prepositions.json'),
                             ])];
                     case 1:
                         _a.sent();

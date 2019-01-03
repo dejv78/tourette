@@ -25,9 +25,9 @@ export function init(songs: FileLoaderService, dict: FileLoaderService, dictp: F
     return new Promise(async(resolve) => {
       try {
         await Promise.all([
-          songs.load('../assets/songs.json'),
-          dict.load('../assets/dictionary.json'),
-          dictp.load('../assets/dictionary_prepositions.json'),
+          songs.load('assets/songs.json'),
+          dict.load('assets/dictionary.json'),
+          dictp.load('assets/dictionary_prepositions.json'),
         ]);
         resolve(true);
       } catch (error) {
