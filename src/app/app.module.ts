@@ -23,7 +23,7 @@ export function createFLSInstance(http: HttpClient) {
 export function init(songs: FileLoaderService, dict: FileLoaderService, dictp: FileLoaderService) {
   return () => {
     return new Promise(async(resolve) => {
-      console.log('LOC ' + location.origin);
+      console.log('LOC ' + location);
       try {
         await Promise.all([
           songs.load(location.origin + 'assets/songs.json'),
