@@ -1,5 +1,11 @@
 <mat-toolbar color="primary">
-<span>Tourette</span>&nbsp;<span class="minor">| lyrics </span>
+  <span>Tourette</span>&nbsp;<span class="minor">| lyrics </span>
+  <div class="fill"></div>
+  <div class="progress" [ngClass]="{visible: inProgress}">
+    <mat-spinner diameter="20"></mat-spinner>
+    <span class="spinner-text">Odhaluji pravou podstatu textu...</span>
+  </div>
+  <div class="fill"></div>
 </mat-toolbar>
 <mat-tab-group>
 
@@ -14,7 +20,7 @@
           <textarea #ta (change)="onTextChanged(ta.value)" (keyup)="onTextChanged(ta.value)" (paste)="onTextChanged(ta.value)">{{text}}</textarea>
         </div>
         <div class="framed full bottom">
-          <button mat-flat-button color="primary" (click)="modify()">Upravit</button>
+          <button mat-flat-button color="primary" (click)="mod()" [disabled]="text.trim() === ''">Upravit</button>
         </div>
       </div>
       <div class="framed column">

@@ -4,7 +4,7 @@
 /*!****************************************!*\
   !*** ./dist/lex/fesm5/tourette-lex.js ***!
   \****************************************/
-/*! exports provided: AnalysisService, AnalysisParams, TK_UNKNOWN, TK_PUNCTUATION, TK_EMPTY_LINE, TK_CONJUNCTION, TK_PREPOSITION, TK_NUMBER, TK_PRONOUN, TK_PART, PUNCT_TYPE_END_OF_SENTENCE, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_ROW, NUMBER_TYPE_KND, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PRONOUN_TYPE_INDEFINITE, PRONOUN_TYPE_NEGATIVE, GENDER_UNKNOWN, GENDER_MALE, GENDER_FEMALE, GENDER_MIDDLE, GENDER_FEMALE_MIDDLE, FALL_1, FALL_2, FALL_3, FALL_4, FALL_5, FALL_6, FALL_7, AMOUNT_UNKNOWN, AMOUNT_SINGLE, AMOUNT_MULTIPLE, Token, Line, AnalysisResult */
+/*! exports provided: AnalysisService, AnalysisParams, TK_UNKNOWN, TK_PUNCTUATION, TK_EMPTY_LINE, TK_CONJUNCTION, TK_PREPOSITION, TK_AFTER_PREPOSITION, TK_NUMBER, TK_PRONOUN, TK_PART, TK_CONNECTED, TK_DEAD, PUNCT_TYPE_END_OF_SENTENCE, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_ROW, NUMBER_TYPE_KND, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PRONOUN_TYPE_INDEFINITE, PRONOUN_TYPE_NEGATIVE, GENDER_UNKNOWN, GENDER_MALE, GENDER_FEMALE, GENDER_MIDDLE, GENDER_FEMALE_MIDDLE, FALL_1, FALL_2, FALL_3, FALL_4, FALL_5, FALL_6, FALL_7, AMOUNT_UNKNOWN, AMOUNT_SINGLE, AMOUNT_MULTIPLE, Token, Line, AnalysisResult */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16,9 +16,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_EMPTY_LINE", function() { return TK_EMPTY_LINE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_CONJUNCTION", function() { return TK_CONJUNCTION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PREPOSITION", function() { return TK_PREPOSITION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_AFTER_PREPOSITION", function() { return TK_AFTER_PREPOSITION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_NUMBER", function() { return TK_NUMBER; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PRONOUN", function() { return TK_PRONOUN; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PART", function() { return TK_PART; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_CONNECTED", function() { return TK_CONNECTED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_DEAD", function() { return TK_DEAD; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PUNCT_TYPE_END_OF_SENTENCE", function() { return PUNCT_TYPE_END_OF_SENTENCE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NUMBER_TYPE_BASIC", function() { return NUMBER_TYPE_BASIC; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NUMBER_TYPE_HAFO", function() { return NUMBER_TYPE_HAFO; });
@@ -69,11 +72,17 @@ var TK_CONJUNCTION = 'sp';
 /** @type {?} */
 var TK_PREPOSITION = 'přl';
 /** @type {?} */
+var TK_AFTER_PREPOSITION = 'po_přl';
+/** @type {?} */
 var TK_NUMBER = 'čís';
 /** @type {?} */
 var TK_PRONOUN = 'záj';
 /** @type {?} */
 var TK_PART = 'čst';
+/** @type {?} */
+var TK_CONNECTED = 'conn';
+/** @type {?} */
+var TK_DEAD = 'dead';
 /** @type {?} */
 var PUNCT_TYPE_END_OF_SENTENCE = 'kv';
 /** @type {?} */
@@ -133,17 +142,28 @@ var Token = /** @class */ (function () {
         this.text = text;
         this.kind = kind ? kind : TK_UNKNOWN;
     }
+    /**
+     * @return {?}
+     */
+    Token.prototype.toString = /**
+     * @return {?}
+     */
+    function () {
+        return this.text;
+    };
     return Token;
 }());
 var Line = /** @class */ (function () {
     function Line(tokens) {
         this.tokens = tokens;
+        this.tokensToRemove = [];
     }
     return Line;
 }());
 var AnalysisResult = /** @class */ (function () {
-    function AnalysisResult(lines) {
+    function AnalysisResult(lines, english) {
         this.lines = lines;
+        this.english = english;
     }
     return AnalysisResult;
 }());
@@ -182,7 +202,7 @@ var RegexSearch = /** @class */ (function () {
         /** @type {?} */
         var myArray;
         while ((myArray = this.regexp.exec(text)) !== null) {
-            console.log("Text: [" + text + "] From: " + oldindex + ", To hit: " + myArray.index + ", To: " + this.regexp.lastIndex);
+            //console.log(`Text: [${text}] From: ${oldindex}, To hit: ${myArray.index}, To: ${this.regexp.lastIndex}`);
             result.push(new SearchResult(text.substring(oldindex, myArray.index), false, oldindex));
             result.push(new SearchResult(text.substring(myArray.index, this.regexp.lastIndex), true, myArray.index));
             oldindex = this.regexp.lastIndex;
@@ -190,7 +210,6 @@ var RegexSearch = /** @class */ (function () {
         if (!oldindex) {
             result.push(new SearchResult(text.substring(oldindex, text.length), false, oldindex));
         }
-        console.log(result);
         return result;
     };
     return RegexSearch;
@@ -200,9 +219,16 @@ var RegexSearch = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
-var SyllablesCounter = /** @class */ (function () {
+/**
+ * Počítadlo slabik
+ */
+var /**
+ * Počítadlo slabik
+ */
+SyllablesCounter = /** @class */ (function () {
     function SyllablesCounter() {
-        this.regexp = new RegExp('[aáeéiíyýoóuúů]+', 'ig');
+        this.regexp = new RegExp('[aáeéěiíyýoóuúů]+', 'ig');
+        this.longs = ['á', 'é', 'í', 'ý', 'ó', 'ú', 'ů'];
     }
     /**
      * @param {?} token
@@ -219,20 +245,22 @@ var SyllablesCounter = /** @class */ (function () {
         /** @type {?} */
         var first = true;
         /** @type {?} */
-        var syllablesCount = 0;
+        var syllables = '';
         /** @type {?} */
         var myArray;
         while ((myArray = this.regexp.exec(token.text)) !== null) {
-            syllablesCount++;
+            /** @type {?} */
+            var match = myArray[0];
+            syllables += ((match.length > 1) || (this.longs.includes(match))) ? '_' : '.';
             if (first) {
                 first = false;
-                if (myArray.index >= 3) {
-                    syllablesCount++;
+                if ((myArray.index >= 3) && (token.text.substring(0, 2).includes('r'))) {
+                    syllables = '.' + syllables;
                 }
             }
         }
         //console.log(`Token: [${token.text}] Syllables: ${syllablesCount}`);
-        token.syllables = syllablesCount ? syllablesCount : (token.text.trim().length >= 1) ? 1 : 0;
+        token.syllables = (syllables.length > 0) ? syllables : (token.text.trim().length >= 1) ? '.' : null;
     };
     return SyllablesCounter;
 }());
@@ -241,7 +269,13 @@ var SyllablesCounter = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
-var EmptyLineDetector = /** @class */ (function () {
+/**
+ * Detekce prázdných řádků
+ */
+var /**
+ * Detekce prázdných řádků
+ */
+EmptyLineDetector = /** @class */ (function () {
     function EmptyLineDetector() {
     }
     /**
@@ -264,7 +298,13 @@ var EmptyLineDetector = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
-var Conjunctions = /** @class */ (function () {
+/**
+ * Spojky
+ */
+var /**
+ * Spojky
+ */
+Conjunctions = /** @class */ (function () {
     function Conjunctions() {
         this.cj = ['a', 'ani', 'nebo', 'ale', 'avšak', 'ba', 'i', 'dokonce', 'nebo', 'anebo', 'tudíž', 'totiž', 'neboť', 'proto'];
     }
@@ -305,7 +345,13 @@ var Conjunctions = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
-var Prepositions = /** @class */ (function () {
+/**
+ * Předložky
+ */
+var /**
+ * Předložky
+ */
+Prepositions = /** @class */ (function () {
     function Prepositions() {
         this.preps = new Map();
         this.preps.set('2', ['z', 'ze', 'od', 'do', 'u', 'bez', 'během', 'kvůli', 'za', 'kromě']);
@@ -318,13 +364,17 @@ var Prepositions = /** @class */ (function () {
     }
     /**
      * @param {?} token
+     * @param {?=} before
+     * @param {?=} after
      * @return {?}
      */
     Prepositions.prototype.analyze = /**
      * @param {?} token
+     * @param {?=} before
+     * @param {?=} after
      * @return {?}
      */
-    function (token) {
+    function (token, before, after) {
         if (token.kind === TK_UNKNOWN) {
             /** @type {?} */
             var text_1 = token.text.toLowerCase().trim();
@@ -335,6 +385,9 @@ var Prepositions = /** @class */ (function () {
                         var c = value_1_1.value;
                         if (c === text_1) {
                             Prepositions.setPreposition(token, key);
+                            if (after) {
+                                Prepositions.setAfterPreposition(after, text_1);
+                            }
                         }
                     }
                 }
@@ -364,6 +417,22 @@ var Prepositions = /** @class */ (function () {
         token.kind = TK_PREPOSITION;
         token.fall = fall;
     };
+    /**
+     * @private
+     * @param {?} after
+     * @param {?} prep
+     * @return {?}
+     */
+    Prepositions.setAfterPreposition = /**
+     * @private
+     * @param {?} after
+     * @param {?} prep
+     * @return {?}
+     */
+    function (after, prep) {
+        after.kind = TK_AFTER_PREPOSITION;
+        after.type = prep;
+    };
     return Prepositions;
 }());
 
@@ -371,7 +440,13 @@ var Prepositions = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
-var Numbers = /** @class */ (function () {
+/**
+ * Číslovky
+ */
+var /**
+ * Číslovky
+ */
+Numbers = /** @class */ (function () {
     function Numbers() {
         this.posts = new Map();
         this.numbers = new Map();
@@ -582,10 +657,15 @@ Pronouns = /** @class */ (function () {
         this.pronouns.set('tyto', new PronounProps(PRONOUN_TYPE_POINTING, FALL_1, GENDER_FEMALE, AMOUNT_MULTIPLE));
         this.pronouns.set('tyhle', new PronounProps(PRONOUN_TYPE_POINTING, FALL_1, GENDER_FEMALE, AMOUNT_MULTIPLE));
         this.pronouns.set('kdo', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_UNKNOWN, AMOUNT_UNKNOWN));
+        this.pronouns.set('kdopak', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_UNKNOWN, AMOUNT_UNKNOWN));
         this.pronouns.set('co', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MIDDLE, AMOUNT_SINGLE));
+        this.pronouns.set('copak', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MIDDLE, AMOUNT_SINGLE));
         this.pronouns.set('jaký', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MALE, AMOUNT_SINGLE));
+        this.pronouns.set('jakýpak', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MALE, AMOUNT_SINGLE));
         this.pronouns.set('který', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MALE, AMOUNT_SINGLE));
+        this.pronouns.set('kterýpak', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_1, GENDER_MALE, AMOUNT_SINGLE));
         this.pronouns.set('čí', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_2, GENDER_UNKNOWN, AMOUNT_UNKNOWN));
+        this.pronouns.set('čípak', new PronounProps(PRONOUN_TYPE_QUESTION, FALL_2, GENDER_UNKNOWN, AMOUNT_UNKNOWN));
         this.pronouns.set('jenž', new PronounProps(PRONOUN_TYPE_RELATION, FALL_1, GENDER_MALE, AMOUNT_SINGLE));
         this.pronouns.set('jež', new PronounProps(PRONOUN_TYPE_RELATION, FALL_1, GENDER_FEMALE, AMOUNT_SINGLE));
         this.pronouns.set('někdo', new PronounProps(PRONOUN_TYPE_INDEFINITE, FALL_1, GENDER_UNKNOWN, AMOUNT_SINGLE));
@@ -646,16 +726,99 @@ Pronouns = /** @class */ (function () {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
+var Parts = /** @class */ (function () {
+    function Parts() {
+        this.parts = ["ať", "kéž", "nejspíš", "zajisté", "prostě", "snad", "asi", "právě", "možná", "právě", "jen", "také", "ano", "ne", "nikoli", "nikoliv", "samozřejmě", "bohužel", "každopádně", "naštěstí", "příliš", "velmi", "velice", "převelice", "moc", "třeba", "teprve", "teprv", "pouze", "přímo"];
+    }
+    /**
+     * @param {?} token
+     * @return {?}
+     */
+    Parts.prototype.analyze = /**
+     * @param {?} token
+     * @return {?}
+     */
+    function (token) {
+        var e_1, _a;
+        if (token.kind !== TK_UNKNOWN) {
+            return;
+        }
+        /** @type {?} */
+        var text = token.text.toLowerCase().trim();
+        try {
+            for (var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(this.parts), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var c = _c.value;
+                if (c === text) {
+                    token.kind = TK_PART;
+                }
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+    };
+    return Parts;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
+var Singles = /** @class */ (function () {
+    function Singles() {
+    }
+    /**
+     * @param {?} current
+     * @param {?=} previous
+     * @param {?=} next
+     * @param {?=} line
+     * @return {?}
+     */
+    Singles.prototype.analyze = /**
+     * @param {?} current
+     * @param {?=} previous
+     * @param {?=} next
+     * @param {?=} line
+     * @return {?}
+     */
+    function (current, previous, next, line) {
+        if ((current.kind !== TK_DEAD) && (current.syllables) && (current.syllables.length === 1) && ((!previous || (previous.kind !== TK_DEAD)))
+            && (next) && (next.kind !== TK_DEAD) && (next.kind !== TK_PREPOSITION) && (next.syllables) && (next.syllables.length === 1) && (line.tokens.indexOf(next) < line.tokens.length - 2)) {
+            current.text += (' ' + next.text);
+            current.syllables += next.syllables;
+            current.kind = TK_CONNECTED;
+            next.kind = TK_DEAD;
+            line.tokensToRemove.push(next);
+        }
+    };
+    return Singles;
+}());
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
 var AnalysisService = /** @class */ (function () {
     function AnalysisService() {
         this.punctuationSearch = new RegexSearch('[\,\.\?\;\:]+', 'ig');
-        this.tokenAnalyzers = [];
-        this.tokenAnalyzers.push(new EmptyLineDetector());
-        this.tokenAnalyzers.push(new SyllablesCounter());
-        this.tokenAnalyzers.push(new Numbers());
-        this.tokenAnalyzers.push(new Conjunctions());
-        this.tokenAnalyzers.push(new Prepositions());
-        this.tokenAnalyzers.push(new Pronouns());
+        this.tokenAnalyzersFirstPass = [];
+        this.tokenAnalyzersSecondPass = [];
+        this.tokenAnalyzersFirstPass.push(new EmptyLineDetector());
+        this.tokenAnalyzersFirstPass.push(new SyllablesCounter());
+        this.tokenAnalyzersFirstPass.push(new Parts());
+        this.tokenAnalyzersFirstPass.push(new Numbers());
+        this.tokenAnalyzersFirstPass.push(new Conjunctions());
+        this.tokenAnalyzersFirstPass.push(new Prepositions());
+        this.tokenAnalyzersFirstPass.push(new Pronouns());
+        // this.tokenAnalyzers.push(new Nouns());
+        // this.tokenAnalyzers.push(new Adjectives());
+        // this.tokenAnalyzers.push(new Verbs());
+        // this.tokenAnalyzers.push(new Adverbs());
+        this.tokenAnalyzersSecondPass.push(new Singles());
     }
     /**
      * @param {?} text
@@ -701,16 +864,21 @@ var AnalysisService = /** @class */ (function () {
             var _this = this;
             return Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__generator"])(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
-                        var e_1, _a, e_2, _b, e_3, _c, e_4, _d, e_5, _e, e_6, _f;
+                        var e_1, _a, e_2, _b, e_3, _c, e_4, _d, e_5, _e;
                         /** @type {?} */
                         var linesRaw = text.split('\n');
                         /** @type {?} */
                         var lines = [];
+                        /** @type {?} */
+                        var english = false;
+                        /** @type {?} */
+                        var allTokens = [];
                         try {
+                            //Pregenerate tokens
                             for (var linesRaw_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(linesRaw), linesRaw_1_1 = linesRaw_1.next(); !linesRaw_1_1.done; linesRaw_1_1 = linesRaw_1.next()) {
                                 var line = linesRaw_1_1.value;
                                 /** @type {?} */
-                                var tokensRaw = line.split(' ');
+                                var tokensRaw = line.trim().split(' ');
                                 /** @type {?} */
                                 var tokens = [];
                                 try {
@@ -721,7 +889,9 @@ var AnalysisService = /** @class */ (function () {
                                         try {
                                             for (var subtokens_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(subtokens), subtokens_1_1 = subtokens_1.next(); !subtokens_1_1.done; subtokens_1_1 = subtokens_1.next()) {
                                                 var subtoken = subtokens_1_1.value;
+                                                english = english || AnalysisService.detectEnglish(subtoken);
                                                 tokens.push(subtoken);
+                                                allTokens.push(subtoken);
                                             }
                                         }
                                         catch (e_3_1) { e_3 = { error: e_3_1 }; }
@@ -751,30 +921,21 @@ var AnalysisService = /** @class */ (function () {
                             finally { if (e_1) throw e_1.error; }
                         }
                         try {
+                            //Analyze tokens
                             for (var lines_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(lines), lines_1_1 = lines_1.next(); !lines_1_1.done; lines_1_1 = lines_1.next()) {
                                 var line = lines_1_1.value;
+                                AnalysisService.analyzeLine(line, _this.tokenAnalyzersFirstPass);
+                                AnalysisService.analyzeLine(line, _this.tokenAnalyzersSecondPass);
                                 try {
-                                    for (var _g = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(line.tokens), _h = _g.next(); !_h.done; _h = _g.next()) {
-                                        var token = _h.value;
-                                        try {
-                                            for (var _j = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(_this.tokenAnalyzers), _k = _j.next(); !_k.done; _k = _j.next()) {
-                                                var analyzer = _k.value;
-                                                analyzer.analyze(token);
-                                            }
-                                        }
-                                        catch (e_6_1) { e_6 = { error: e_6_1 }; }
-                                        finally {
-                                            try {
-                                                if (_k && !_k.done && (_f = _j.return)) _f.call(_j);
-                                            }
-                                            finally { if (e_6) throw e_6.error; }
-                                        }
+                                    for (var _f = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(line.tokensToRemove), _g = _f.next(); !_g.done; _g = _f.next()) {
+                                        var dead = _g.value;
+                                        line.tokens.splice(line.tokens.indexOf(dead), 1);
                                     }
                                 }
                                 catch (e_5_1) { e_5 = { error: e_5_1 }; }
                                 finally {
                                     try {
-                                        if (_h && !_h.done && (_e = _g.return)) _e.call(_g);
+                                        if (_g && !_g.done && (_e = _f.return)) _e.call(_f);
                                     }
                                     finally { if (e_5) throw e_5.error; }
                                 }
@@ -787,10 +948,44 @@ var AnalysisService = /** @class */ (function () {
                             }
                             finally { if (e_4) throw e_4.error; }
                         }
-                        resolve(new AnalysisResult(lines));
+                        allTokens[0].sentenceStart = true;
+                        for (var i = 0; i < allTokens.length - 1; i++) {
+                            AnalysisService.detectSentenceStarts(allTokens[i], allTokens[i + 1]);
+                        }
+                        resolve(new AnalysisResult(lines, english));
                     })];
             });
         });
+    };
+    /**
+     * @private
+     * @param {?} line
+     * @param {?} analyzers
+     * @return {?}
+     */
+    AnalysisService.analyzeLine = /**
+     * @private
+     * @param {?} line
+     * @param {?} analyzers
+     * @return {?}
+     */
+    function (line, analyzers) {
+        var e_6, _a;
+        for (var i = 0; i < line.tokens.length; i++) {
+            try {
+                for (var analyzers_1 = Object(tslib__WEBPACK_IMPORTED_MODULE_1__["__values"])(analyzers), analyzers_1_1 = analyzers_1.next(); !analyzers_1_1.done; analyzers_1_1 = analyzers_1.next()) {
+                    var analyzer = analyzers_1_1.value;
+                    analyzer.analyze(line.tokens[i], (i > 0) ? line.tokens[i - 1] : null, (i < line.tokens.length - 1) ? line.tokens[i + 1] : null, line);
+                }
+            }
+            catch (e_6_1) { e_6 = { error: e_6_1 }; }
+            finally {
+                try {
+                    if (analyzers_1_1 && !analyzers_1_1.done && (_a = analyzers_1.return)) _a.call(analyzers_1);
+                }
+                finally { if (e_6) throw e_6.error; }
+            }
+        }
     };
     /**
      * @private
@@ -827,6 +1022,34 @@ var AnalysisService = /** @class */ (function () {
             finally { if (e_7) throw e_7.error; }
         }
         return result;
+    };
+    /**
+     * @private
+     * @param {?} token
+     * @return {?}
+     */
+    AnalysisService.detectEnglish = /**
+     * @private
+     * @param {?} token
+     * @return {?}
+     */
+    function (token) {
+        return (token.text.toLowerCase() === 'the');
+    };
+    /**
+     * @private
+     * @param {?} current
+     * @param {?} next
+     * @return {?}
+     */
+    AnalysisService.detectSentenceStarts = /**
+     * @private
+     * @param {?} current
+     * @param {?} next
+     * @return {?}
+     */
+    function (current, next) {
+        next.sentenceStart = (current.type === PUNCT_TYPE_END_OF_SENTENCE) || (current.kind === TK_EMPTY_LINE);
     };
     AnalysisService.decorators = [
         { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"], args: [{
@@ -885,10 +1108,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _analyzers_numbers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./analyzers/numbers */ "./projects/lex/src/lib/analyzers/numbers.ts");
 /* harmony import */ var _analyzers_pronouns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./analyzers/pronouns */ "./projects/lex/src/lib/analyzers/pronouns.ts");
 /* harmony import */ var _analyzers_parts__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./analyzers/parts */ "./projects/lex/src/lib/analyzers/parts.ts");
-/* harmony import */ var _analyzers_nouns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./analyzers/nouns */ "./projects/lex/src/lib/analyzers/nouns.ts");
-/* harmony import */ var _analyzers_verbs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./analyzers/verbs */ "./projects/lex/src/lib/analyzers/verbs.ts");
-/* harmony import */ var _analyzers_adjectives__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./analyzers/adjectives */ "./projects/lex/src/lib/analyzers/adjectives.ts");
-/* harmony import */ var _analyzers_adverbs__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./analyzers/adverbs */ "./projects/lex/src/lib/analyzers/adverbs.ts");
+/* harmony import */ var _analyzers_singles__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./analyzers/singles */ "./projects/lex/src/lib/analyzers/singles.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -944,25 +1164,25 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
-
-
-
 var AnalysisService = /** @class */ (function () {
     function AnalysisService() {
         this.punctuationSearch = new _util_regex_search__WEBPACK_IMPORTED_MODULE_2__["RegexSearch"]('[\,\.\?\;\:]+', 'ig');
-        this.tokenAnalyzers = [];
-        this.tokenAnalyzers.push(new _analyzers_empty_line_detector__WEBPACK_IMPORTED_MODULE_4__["EmptyLineDetector"]());
-        this.tokenAnalyzers.push(new _analyzers_syllables_counter__WEBPACK_IMPORTED_MODULE_3__["SyllablesCounter"]());
-        this.tokenAnalyzers.push(new _analyzers_parts__WEBPACK_IMPORTED_MODULE_9__["Parts"]());
-        this.tokenAnalyzers.push(new _analyzers_numbers__WEBPACK_IMPORTED_MODULE_7__["Numbers"]());
-        this.tokenAnalyzers.push(new _analyzers_conjunctions__WEBPACK_IMPORTED_MODULE_5__["Conjunctions"]());
-        this.tokenAnalyzers.push(new _analyzers_prepositions__WEBPACK_IMPORTED_MODULE_6__["Prepositions"]());
-        this.tokenAnalyzers.push(new _analyzers_pronouns__WEBPACK_IMPORTED_MODULE_8__["Pronouns"]());
-        this.tokenAnalyzers.push(new _analyzers_nouns__WEBPACK_IMPORTED_MODULE_10__["Nouns"]());
-        this.tokenAnalyzers.push(new _analyzers_adjectives__WEBPACK_IMPORTED_MODULE_12__["Adjectives"]());
-        this.tokenAnalyzers.push(new _analyzers_verbs__WEBPACK_IMPORTED_MODULE_11__["Verbs"]());
-        this.tokenAnalyzers.push(new _analyzers_adverbs__WEBPACK_IMPORTED_MODULE_13__["Adverbs"]());
+        this.tokenAnalyzersFirstPass = [];
+        this.tokenAnalyzersSecondPass = [];
+        this.tokenAnalyzersFirstPass.push(new _analyzers_empty_line_detector__WEBPACK_IMPORTED_MODULE_4__["EmptyLineDetector"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_syllables_counter__WEBPACK_IMPORTED_MODULE_3__["SyllablesCounter"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_parts__WEBPACK_IMPORTED_MODULE_9__["Parts"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_numbers__WEBPACK_IMPORTED_MODULE_7__["Numbers"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_conjunctions__WEBPACK_IMPORTED_MODULE_5__["Conjunctions"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_prepositions__WEBPACK_IMPORTED_MODULE_6__["Prepositions"]());
+        this.tokenAnalyzersFirstPass.push(new _analyzers_pronouns__WEBPACK_IMPORTED_MODULE_8__["Pronouns"]());
+        // this.tokenAnalyzers.push(new Nouns());
+        // this.tokenAnalyzers.push(new Adjectives());
+        // this.tokenAnalyzers.push(new Verbs());
+        // this.tokenAnalyzers.push(new Adverbs());
+        this.tokenAnalyzersSecondPass.push(new _analyzers_singles__WEBPACK_IMPORTED_MODULE_10__["Singles"]());
     }
+    AnalysisService_1 = AnalysisService;
     AnalysisService.prototype.analyze = function (text, params) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -989,6 +1209,8 @@ var AnalysisService = /** @class */ (function () {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         var linesRaw = text.split('\n');
                         var lines = [];
+                        var english = false;
+                        var allTokens = [];
                         //Pregenerate tokens
                         for (var _i = 0, linesRaw_1 = linesRaw; _i < linesRaw_1.length; _i++) {
                             var line = linesRaw_1[_i];
@@ -999,29 +1221,39 @@ var AnalysisService = /** @class */ (function () {
                                 var subtokens = _this.detectPunctuation(token);
                                 for (var _b = 0, subtokens_1 = subtokens; _b < subtokens_1.length; _b++) {
                                     var subtoken = subtokens_1[_b];
+                                    english = english || AnalysisService_1.detectEnglish(subtoken);
                                     tokens.push(subtoken);
+                                    allTokens.push(subtoken);
                                 }
                             }
                             lines.push(new _model_analysis_result__WEBPACK_IMPORTED_MODULE_1__["Line"](tokens));
                         }
                         //Analyze tokens
-                        //TODO: Generate sentences, and analyze tokens according to sentences instead of lines.
-                        //TODO: Pass current sentence to analyzer, along with token.
-                        //TODO: Return lines as usual.
                         for (var _c = 0, lines_1 = lines; _c < lines_1.length; _c++) {
                             var line = lines_1[_c];
-                            for (var _d = 0, _e = line.tokens; _d < _e.length; _d++) {
-                                var token = _e[_d];
-                                for (var _f = 0, _g = _this.tokenAnalyzers; _f < _g.length; _f++) {
-                                    var analyzer = _g[_f];
-                                    analyzer.analyze(token);
-                                }
+                            AnalysisService_1.analyzeLine(line, _this.tokenAnalyzersFirstPass);
+                            AnalysisService_1.analyzeLine(line, _this.tokenAnalyzersSecondPass);
+                            for (var _d = 0, _e = line.tokensToRemove; _d < _e.length; _d++) {
+                                var dead = _e[_d];
+                                line.tokens.splice(line.tokens.indexOf(dead), 1);
                             }
                         }
-                        resolve(new _model_analysis_result__WEBPACK_IMPORTED_MODULE_1__["AnalysisResult"](lines));
+                        allTokens[0].sentenceStart = true;
+                        for (var i = 0; i < allTokens.length - 1; i++) {
+                            AnalysisService_1.detectSentenceStarts(allTokens[i], allTokens[i + 1]);
+                        }
+                        resolve(new _model_analysis_result__WEBPACK_IMPORTED_MODULE_1__["AnalysisResult"](lines, english));
                     })];
             });
         });
+    };
+    AnalysisService.analyzeLine = function (line, analyzers) {
+        for (var i = 0; i < line.tokens.length; i++) {
+            for (var _i = 0, analyzers_1 = analyzers; _i < analyzers_1.length; _i++) {
+                var analyzer = analyzers_1[_i];
+                analyzer.analyze(line.tokens[i], (i > 0) ? line.tokens[i - 1] : null, (i < line.tokens.length - 1) ? line.tokens[i + 1] : null, line);
+            }
+        }
     };
     AnalysisService.prototype.detectPunctuation = function (token) {
         var result = [];
@@ -1036,63 +1268,20 @@ var AnalysisService = /** @class */ (function () {
         }
         return result;
     };
-    AnalysisService = __decorate([
+    AnalysisService.detectEnglish = function (token) {
+        return (token.text.toLowerCase() === 'the');
+    };
+    AnalysisService.detectSentenceStarts = function (current, next) {
+        next.sentenceStart = (current.type === _model_analysis_result__WEBPACK_IMPORTED_MODULE_1__["PUNCT_TYPE_END_OF_SENTENCE"]) || (current.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_1__["TK_EMPTY_LINE"]);
+    };
+    var AnalysisService_1;
+    AnalysisService = AnalysisService_1 = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])({
             providedIn: 'root'
         }),
         __metadata("design:paramtypes", [])
     ], AnalysisService);
     return AnalysisService;
-}());
-
-
-
-/***/ }),
-
-/***/ "./projects/lex/src/lib/analyzers/adjectives.ts":
-/*!******************************************************!*\
-  !*** ./projects/lex/src/lib/analyzers/adjectives.ts ***!
-  \******************************************************/
-/*! exports provided: Adjectives */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Adjectives", function() { return Adjectives; });
-/**
- * Přídavná jména
- */
-var Adjectives = /** @class */ (function () {
-    function Adjectives() {
-    }
-    Adjectives.prototype.analyze = function (token) {
-    };
-    return Adjectives;
-}());
-
-
-
-/***/ }),
-
-/***/ "./projects/lex/src/lib/analyzers/adverbs.ts":
-/*!***************************************************!*\
-  !*** ./projects/lex/src/lib/analyzers/adverbs.ts ***!
-  \***************************************************/
-/*! exports provided: Adverbs */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Adverbs", function() { return Adverbs; });
-/**
- * Příslovce
- */
-var Adverbs = /** @class */ (function () {
-    function Adverbs() {
-    }
-    Adverbs.prototype.analyze = function (token) {
-    };
-    return Adverbs;
 }());
 
 
@@ -1160,31 +1349,6 @@ var EmptyLineDetector = /** @class */ (function () {
         }
     };
     return EmptyLineDetector;
-}());
-
-
-
-/***/ }),
-
-/***/ "./projects/lex/src/lib/analyzers/nouns.ts":
-/*!*************************************************!*\
-  !*** ./projects/lex/src/lib/analyzers/nouns.ts ***!
-  \*************************************************/
-/*! exports provided: Nouns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Nouns", function() { return Nouns; });
-/**
- * Podstatná jména
- */
-var Nouns = /** @class */ (function () {
-    function Nouns() {
-    }
-    Nouns.prototype.analyze = function (token) {
-    };
-    return Nouns;
 }());
 
 
@@ -1349,7 +1513,7 @@ var Prepositions = /** @class */ (function () {
         this.preps.set('4/7', ['nad', 'pod', 'před', 'mezi']);
         this.preps.set('2/4/7', ['za', 's']);
     }
-    Prepositions.prototype.analyze = function (token) {
+    Prepositions.prototype.analyze = function (token, before, after) {
         if (token.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_UNKNOWN"]) {
             var text_1 = token.text.toLowerCase().trim();
             this.preps.forEach(function (value, key) {
@@ -1357,6 +1521,9 @@ var Prepositions = /** @class */ (function () {
                     var c = value_1[_i];
                     if (c === text_1) {
                         Prepositions.setPreposition(token, key);
+                        if (after) {
+                            Prepositions.setAfterPreposition(after, text_1);
+                        }
                     }
                 }
             });
@@ -1365,6 +1532,10 @@ var Prepositions = /** @class */ (function () {
     Prepositions.setPreposition = function (token, fall) {
         token.kind = _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_PREPOSITION"];
         token.fall = fall;
+    };
+    Prepositions.setAfterPreposition = function (after, prep) {
+        after.kind = _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_AFTER_PREPOSITION"];
+        after.type = prep;
     };
     return Prepositions;
 }());
@@ -1496,6 +1667,38 @@ var Pronouns = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./projects/lex/src/lib/analyzers/singles.ts":
+/*!***************************************************!*\
+  !*** ./projects/lex/src/lib/analyzers/singles.ts ***!
+  \***************************************************/
+/*! exports provided: Singles */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Singles", function() { return Singles; });
+/* harmony import */ var _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../model/analysis-result */ "./projects/lex/src/lib/model/analysis-result.ts");
+
+var Singles = /** @class */ (function () {
+    function Singles() {
+    }
+    Singles.prototype.analyze = function (current, previous, next, line) {
+        if ((current.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_DEAD"]) && (current.syllables) && (current.syllables.length === 1) && ((!previous || (previous.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_DEAD"])))
+            && (next) && (next.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_DEAD"]) && (next.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_PREPOSITION"]) && (next.syllables) && (next.syllables.length === 1) && (line.tokens.indexOf(next) < line.tokens.length - 2)) {
+            current.text += (' ' + next.text);
+            current.syllables += next.syllables;
+            current.kind = _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_CONNECTED"];
+            next.kind = _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_DEAD"];
+            line.tokensToRemove.push(next);
+        }
+    };
+    return Singles;
+}());
+
+
+
+/***/ }),
+
 /***/ "./projects/lex/src/lib/analyzers/syllables-counter.ts":
 /*!*************************************************************!*\
   !*** ./projects/lex/src/lib/analyzers/syllables-counter.ts ***!
@@ -1513,26 +1716,28 @@ __webpack_require__.r(__webpack_exports__);
  */
 var SyllablesCounter = /** @class */ (function () {
     function SyllablesCounter() {
-        this.regexp = new RegExp('[aáeéiíyýoóuúů]+', 'ig');
+        this.regexp = new RegExp('[aáeéěiíyýoóuúů]+', 'ig');
+        this.longs = ['á', 'é', 'í', 'ý', 'ó', 'ú', 'ů'];
     }
     SyllablesCounter.prototype.analyze = function (token) {
         if ((token.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_EMPTY_LINE"]) || (token.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_0__["TK_PUNCTUATION"])) {
             return;
         }
         var first = true;
-        var syllablesCount = 0;
+        var syllables = '';
         var myArray;
         while ((myArray = this.regexp.exec(token.text)) !== null) {
-            syllablesCount++;
+            var match = myArray[0];
+            syllables += ((match.length > 1) || (this.longs.includes(match))) ? '_' : '.';
             if (first) {
                 first = false;
-                if (myArray.index >= 3) {
-                    syllablesCount++;
+                if ((myArray.index >= 3) && (token.text.substring(0, 2).includes('r'))) {
+                    syllables = '.' + syllables;
                 }
             }
         }
         //console.log(`Token: [${token.text}] Syllables: ${syllablesCount}`);
-        token.syllables = syllablesCount ? syllablesCount : (token.text.trim().length >= 1) ? 1 : 0;
+        token.syllables = (syllables.length > 0) ? syllables : (token.text.trim().length >= 1) ? '.' : null;
     };
     return SyllablesCounter;
 }());
@@ -1541,25 +1746,187 @@ var SyllablesCounter = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./projects/lex/src/lib/analyzers/verbs.ts":
-/*!*************************************************!*\
-  !*** ./projects/lex/src/lib/analyzers/verbs.ts ***!
-  \*************************************************/
-/*! exports provided: Verbs */
+/***/ "./projects/lex/src/lib/deco.service.ts":
+/*!**********************************************!*\
+  !*** ./projects/lex/src/lib/deco.service.ts ***!
+  \**********************************************/
+/*! exports provided: DecoService */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Verbs", function() { return Verbs; });
-/**
- * Slovesa
- */
-var Verbs = /** @class */ (function () {
-    function Verbs() {
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DecoService", function() { return DecoService; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
+/* harmony import */ var _d78ng_file_loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @d78ng/file-loader */ "./node_modules/@d78ng/file-loader/fesm5/d78ng-file-loader.js");
+/* harmony import */ var _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./model/analysis-result */ "./projects/lex/src/lib/model/analysis-result.ts");
+/* harmony import */ var _src_app_app_tokens__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../src/app/app.tokens */ "./src/app/app.tokens.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (undefined && undefined.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-    Verbs.prototype.analyze = function (token) {
+};
+
+
+
+
+var DecoService = /** @class */ (function () {
+    function DecoService(dict, dictp) {
+        this.dict = dict;
+        this.dictp = dictp;
+        this.dictionary = new Map();
+        this.dictionary_prepositions = new Map();
+        this.used = [];
+        this.replacements = new Map();
+        for (var _i = 0, _a = Object.keys(dict.data); _i < _a.length; _i++) {
+            var syl = _a[_i];
+            this.dictionary.set(syl, dict.data[syl]);
+        }
+        for (var _b = 0, _c = Object.keys(dictp.data); _b < _c.length; _b++) {
+            var prep = _c[_b];
+            var preposition = dictp.data[prep];
+            var map = new Map();
+            for (var _d = 0, _e = Object.keys(preposition); _d < _e.length; _d++) {
+                var syl = _e[_d];
+                map.set(syl, preposition[syl]);
+            }
+            this.dictionary_prepositions.set(prep, map);
+        }
+    }
+    DecoService.prototype.decorate = function (analysis) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        _this.replacements.clear();
+                        for (var _i = 0, _a = analysis.lines; _i < _a.length; _i++) {
+                            var line = _a[_i];
+                            var significantTokens = [];
+                            for (var _b = 0, _c = line.tokens; _b < _c.length; _b++) {
+                                var token = _c[_b];
+                                if ((token.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_PUNCTUATION"]) && (token.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_EMPTY_LINE"]) && (token.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_CONJUNCTION"]) && (token.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_PREPOSITION"])) {
+                                    token.decorate = (token.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_CONNECTED"]);
+                                    significantTokens.push(token);
+                                }
+                            }
+                            var step = (analysis.english ? 5 : 3);
+                            for (var i = significantTokens.length - 2; i >= 0; i -= step) {
+                                significantTokens[i].decorate = true;
+                            }
+                        }
+                        var result = '';
+                        for (var _d = 0, _e = analysis.lines; _d < _e.length; _d++) {
+                            var line = _e[_d];
+                            var first = true;
+                            for (var _f = 0, _g = line.tokens; _f < _g.length; _f++) {
+                                var token = _g[_f];
+                                if ((!first) && (token.kind !== _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_PUNCTUATION"])) {
+                                    result += ' ';
+                                }
+                                if (token.kind === _model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_AFTER_PREPOSITION"]) {
+                                    result += (token.decorate) ? _this.replaceTokenByPreposition(token) : token.text;
+                                }
+                                else {
+                                    result += (token.decorate) ? _this.replaceToken(token) : token.text;
+                                }
+                                first = false;
+                            }
+                            result += '\n';
+                        }
+                        resolve(result);
+                    })];
+            });
+        });
     };
-    return Verbs;
+    DecoService.prototype.replaceToken = function (t) {
+        if ((t.syllables != null) && (this.dictionary.has(t.syllables))) {
+            return this.replaceTokenFromArray(t, this.dictionary.get(t.syllables), 0);
+        }
+        return t.text;
+    };
+    DecoService.prototype.replaceTokenByPreposition = function (t) {
+        if ((t.type != null) && (this.dictionary_prepositions.has(t.type))) {
+            var dict = this.dictionary_prepositions.get(t.type);
+            if ((t.syllables != null) && (dict.has(t.syllables))) {
+                return this.replaceTokenFromArray(t, dict.get(t.syllables), 0);
+            }
+        }
+        return this.replaceToken(t);
+    };
+    DecoService.prototype.replaceTokenFromArray = function (t, arr, depth) {
+        var len = arr.length - 1;
+        var textlc = t.text.toLowerCase();
+        var replacement = '';
+        if (this.replacements.has(textlc)) {
+            replacement = this.replacements.get(textlc);
+        }
+        else {
+            replacement = (len > 1) ? arr[Math.round((Math.random() * len))] : arr[0];
+            if (this.used.includes(replacement)) {
+                replacement = (depth < 3) ? this.replaceTokenFromArray(t, arr, depth + 1) : t.text;
+            }
+            else {
+                this.replacements.set(textlc, replacement);
+                this.used.push(replacement);
+            }
+        }
+        if (this.used.length > 5) {
+            this.used.splice(0, 1);
+        }
+        if (t.sentenceStart) {
+            replacement = replacement.charAt(0).toUpperCase() + replacement.slice(1);
+        }
+        return replacement;
+    };
+    DecoService = __decorate([
+        Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])({
+            providedIn: 'root'
+        }),
+        __param(0, Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"])(_src_app_app_tokens__WEBPACK_IMPORTED_MODULE_3__["DATA_DICT"])), __param(1, Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"])(_src_app_app_tokens__WEBPACK_IMPORTED_MODULE_3__["DATA_DICTP"])),
+        __metadata("design:paramtypes", [_d78ng_file_loader__WEBPACK_IMPORTED_MODULE_1__["FileLoaderService"], _d78ng_file_loader__WEBPACK_IMPORTED_MODULE_1__["FileLoaderService"]])
+    ], DecoService);
+    return DecoService;
 }());
 
 
@@ -1570,7 +1937,7 @@ var Verbs = /** @class */ (function () {
 /*!*******************************************************!*\
   !*** ./projects/lex/src/lib/model/analysis-result.ts ***!
   \*******************************************************/
-/*! exports provided: TK_UNKNOWN, TK_PUNCTUATION, TK_EMPTY_LINE, TK_CONJUNCTION, TK_PREPOSITION, TK_NUMBER, TK_PRONOUN, TK_PART, PUNCT_TYPE_END_OF_SENTENCE, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_ROW, NUMBER_TYPE_KND, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PRONOUN_TYPE_INDEFINITE, PRONOUN_TYPE_NEGATIVE, GENDER_UNKNOWN, GENDER_MALE, GENDER_FEMALE, GENDER_MIDDLE, GENDER_FEMALE_MIDDLE, FALL_1, FALL_2, FALL_3, FALL_4, FALL_5, FALL_6, FALL_7, AMOUNT_UNKNOWN, AMOUNT_SINGLE, AMOUNT_MULTIPLE, Token, Line, AnalysisResult */
+/*! exports provided: TK_UNKNOWN, TK_PUNCTUATION, TK_EMPTY_LINE, TK_CONJUNCTION, TK_PREPOSITION, TK_AFTER_PREPOSITION, TK_NUMBER, TK_PRONOUN, TK_PART, TK_CONNECTED, TK_DEAD, PUNCT_TYPE_END_OF_SENTENCE, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_ROW, NUMBER_TYPE_KND, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PRONOUN_TYPE_INDEFINITE, PRONOUN_TYPE_NEGATIVE, GENDER_UNKNOWN, GENDER_MALE, GENDER_FEMALE, GENDER_MIDDLE, GENDER_FEMALE_MIDDLE, FALL_1, FALL_2, FALL_3, FALL_4, FALL_5, FALL_6, FALL_7, AMOUNT_UNKNOWN, AMOUNT_SINGLE, AMOUNT_MULTIPLE, Token, Line, AnalysisResult */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1580,9 +1947,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_EMPTY_LINE", function() { return TK_EMPTY_LINE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_CONJUNCTION", function() { return TK_CONJUNCTION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PREPOSITION", function() { return TK_PREPOSITION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_AFTER_PREPOSITION", function() { return TK_AFTER_PREPOSITION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_NUMBER", function() { return TK_NUMBER; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PRONOUN", function() { return TK_PRONOUN; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_PART", function() { return TK_PART; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_CONNECTED", function() { return TK_CONNECTED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TK_DEAD", function() { return TK_DEAD; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PUNCT_TYPE_END_OF_SENTENCE", function() { return PUNCT_TYPE_END_OF_SENTENCE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NUMBER_TYPE_BASIC", function() { return NUMBER_TYPE_BASIC; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NUMBER_TYPE_HAFO", function() { return NUMBER_TYPE_HAFO; });
@@ -1618,9 +1988,12 @@ var TK_PUNCTUATION = 'ip';
 var TK_EMPTY_LINE = '-';
 var TK_CONJUNCTION = 'sp';
 var TK_PREPOSITION = 'přl';
+var TK_AFTER_PREPOSITION = 'po_přl';
 var TK_NUMBER = 'čís';
 var TK_PRONOUN = 'záj';
 var TK_PART = 'čst';
+var TK_CONNECTED = 'conn';
+var TK_DEAD = 'dead';
 var PUNCT_TYPE_END_OF_SENTENCE = 'kv';
 var NUMBER_TYPE_BASIC = 'z';
 var NUMBER_TYPE_HAFO = 'h';
@@ -1653,20 +2026,25 @@ var Token = /** @class */ (function () {
         this.text = text;
         this.kind = kind ? kind : TK_UNKNOWN;
     }
+    Token.prototype.toString = function () {
+        return this.text;
+    };
     return Token;
 }());
 
 var Line = /** @class */ (function () {
     function Line(tokens) {
         this.tokens = tokens;
+        this.tokensToRemove = [];
     }
     ;
     return Line;
 }());
 
 var AnalysisResult = /** @class */ (function () {
-    function AnalysisResult(lines) {
+    function AnalysisResult(lines, english) {
         this.lines = lines;
+        this.english = english;
     }
     ;
     return AnalysisResult;
@@ -1754,7 +2132,7 @@ webpackEmptyAsyncContext.id = "./src/$$_lazy_route_resource lazy recursive";
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<mat-toolbar color=\"primary\">\n<span>Tourette</span>&nbsp;<span class=\"minor\">| lyrics </span>\n</mat-toolbar>\n<mat-tab-group>\n\n  <mat-tab label=\"Text\">\n    <div class=\"framed workspace\">\n      <div class=\"framed column\">\n        <div class=\"framed top\">\n          <app-song-selector (onSongChanged)=\"onTextChanged($event)\"></app-song-selector>\n        </div>\n        <div class=\"framed fill\">\n          <!--suppress HtmlFormInputWithoutLabel -->\n          <textarea #ta (change)=\"onTextChanged(ta.value)\" (keyup)=\"onTextChanged(ta.value)\" (paste)=\"onTextChanged(ta.value)\">{{text}}</textarea>\n        </div>\n        <div class=\"framed full bottom\">\n          <button mat-flat-button color=\"primary\" (click)=\"modify()\">Upravit</button>\n        </div>\n      </div>\n      <div class=\"framed column\">\n        <div class=\"framed top\">\n        </div>\n        <div class=\"framed fill\">\n          <!--suppress HtmlFormInputWithoutLabel -->\n          <textarea>{{result}}</textarea>\n        </div>\n        <div class=\"framed bottom\">\n        </div>\n      </div>\n    </div>\n  </mat-tab>\n\n  <mat-tab label=\"Analýza\">\n    <div class=\"workspace\">\n      <div class=\"framed column\">\n        <app-analysis [analysis]=\"analysis\"></app-analysis>\n      </div>\n    </div>\n  </mat-tab>\n</mat-tab-group>\n"
+module.exports = "<mat-toolbar color=\"primary\">\n  <span>Tourette</span>&nbsp;<span class=\"minor\">| lyrics </span>\n  <div class=\"fill\"></div>\n  <div class=\"progress\" [ngClass]=\"{visible: inProgress}\">\n    <mat-spinner diameter=\"20\"></mat-spinner>\n    <span class=\"spinner-text\">Odhaluji pravou podstatu textu...</span>\n  </div>\n  <div class=\"fill\"></div>\n</mat-toolbar>\n<mat-tab-group>\n\n  <mat-tab label=\"Text\">\n    <div class=\"framed workspace\">\n      <div class=\"framed column\">\n        <div class=\"framed top\">\n          <app-song-selector (onSongChanged)=\"onTextChanged($event)\"></app-song-selector>\n        </div>\n        <div class=\"framed fill\">\n          <!--suppress HtmlFormInputWithoutLabel -->\n          <textarea #ta (change)=\"onTextChanged(ta.value)\" (keyup)=\"onTextChanged(ta.value)\" (paste)=\"onTextChanged(ta.value)\">{{text}}</textarea>\n        </div>\n        <div class=\"framed full bottom\">\n          <button mat-flat-button color=\"primary\" (click)=\"mod()\" [disabled]=\"text.trim() === ''\">Upravit</button>\n        </div>\n      </div>\n      <div class=\"framed column\">\n        <div class=\"framed top\">\n        </div>\n        <div class=\"framed fill\">\n          <!--suppress HtmlFormInputWithoutLabel -->\n          <textarea>{{result}}</textarea>\n        </div>\n        <div class=\"framed bottom\">\n        </div>\n      </div>\n    </div>\n  </mat-tab>\n\n  <mat-tab label=\"Analýza\">\n    <div class=\"workspace\">\n      <div class=\"framed column\">\n        <app-analysis [analysis]=\"analysis\"></app-analysis>\n      </div>\n    </div>\n  </mat-tab>\n</mat-tab-group>\n"
 
 /***/ }),
 
@@ -1765,7 +2143,7 @@ module.exports = "<mat-toolbar color=\"primary\">\n<span>Tourette</span>&nbsp;<s
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":host {\n  height: 100vh;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\n.minor {\n  opacity: 0.5; }\n\n.framed {\n  border: none; }\n\n.fill {\n  flex-grow: 1;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  margin: 36px 0; }\n\n.full {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  flex-grow: 0; }\n\n@media screen and (min-width: 1200px) {\n  .top {\n    overflow-y: auto;\n    flex: 0 0 144px;\n    min-height: 144px;\n    max-height: 144px;\n    height: 144px; } }\n\n@media screen and (min-width: 1200px) {\n  .bottom {\n    overflow-y: auto;\n    flex: 0 0 36px;\n    min-height: 36px;\n    max-height: 36px;\n    height: 36px; } }\n\n.workspace {\n  flex-grow: 1;\n  width: 100%;\n  min-height: 1600px;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\n@media screen and (min-width: 1200px) {\n    .workspace {\n      flex-grow: 1;\n      display: flex;\n      flex-direction: row;\n      flex-wrap: nowrap;\n      align-items: stretch;\n      width: 1100px;\n      min-height: 800px; } }\n\n@media screen and (min-width: 1500px) {\n    .workspace {\n      width: 1400px; } }\n\n.column {\n  flex: 1 1 50%;\n  padding: 24px;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\ntextarea {\n  flex-grow: 1;\n  background-color: #262626;\n  border: 1px solid #595959;\n  padding: 24px;\n  color: inherit;\n  outline: none;\n  resize: none; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9hcHAvYXBwLmNvbXBvbmVudC5zY3NzIiwiL2NvZGUvcGVyc29uYWwvdG91cmV0dGUvc3JjL3N0eWxlcy9fY29tbW9uLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUE7RUFDRSxjQUFhO0VDZWIsYUFBWTtFQUNaLGNBQWE7RUFDYix1QkRoQnNCO0VDaUJ0QixrQkFBaUI7RUFDakIscUJEbEIrQixFQUNoQzs7QUFFRDtFQUNFLGFBQVksRUFDYjs7QUFFRDtFQUNFLGFBQVksRUFDYjs7QUFFRDtFQUNFLGFBQVk7RUNFWixhQUFZO0VBQ1osY0FBYTtFQUNiLHVCREhzQjtFQ0l0QixrQkFBaUI7RUFDakIscUJETCtCO0VBQy9CLGVBQW1CLEVBQ3BCOztBQUVEO0VDSEUsYUFBWTtFQUNaLGNBQWE7RUFDYix1QkRFc0I7RUNEdEIsa0JBQWlCO0VBQ2pCLHFCREErQjtFQUMvQixhQUFZLEVBQ2I7O0FBR0M7RUFERjtJQ01FLGlCQUFnQjtJQUNoQixnQkRMNkI7SUNNN0Isa0JETjZCO0lDTzdCLGtCRFA2QjtJQ1E3QixjRFI2QixFQUU5QixFQUFBOztBQUdDO0VBREY7SUNBRSxpQkFBZ0I7SUFDaEIsZURDNEI7SUNBNUIsaUJEQTRCO0lDQzVCLGlCREQ0QjtJQ0U1QixhREY0QixFQUU3QixFQUFBOztBQUdEO0VBQ0UsYUFBWTtFQUNaLFlBQVc7RUFDWCxtQkM1QnlCO0VBSXpCLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJEdUJzQjtFQ3RCdEIsa0JBQWlCO0VBQ2pCLHFCRHFCK0IsRUFVaEM7O0FBUkM7SUFORjtNQ3JCRSxhQUFZO01BQ1osY0FBYTtNQUNiLG9CRDBCcUI7TUN6QnJCLGtCQUFpQjtNQUNqQixxQkR3QjhCO01BQzVCLGNDbkN1QjtNRG9DdkIsa0JDakNzQixFRHNDekIsRUFBQTs7QUFIQztJQVhGO01BWUksY0N0Q3FCLEVEd0N4QixFQUFBOztBQUVEO0VBQ0UsY0FBYTtFQUNiLGNDdkRhO0VBZ0JiLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJEc0NzQjtFQ3JDdEIsa0JBQWlCO0VBQ2pCLHFCRG9DK0IsRUFDaEM7O0FBRUQ7RUFDRSxhQUFZO0VDcENaLDBCQW5CaUQ7RUFvQmpELDBCQW5CaUQ7RUFvQmpELGNBMUJhO0VEOERiLGVBQWM7RUFDZCxjQUFhO0VBQ2IsYUFBWSxFQUNiIiwiZmlsZSI6InNyYy9hcHAvYXBwLmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiQGltcG9ydCAnY29tbW9uJztcblxuOmhvc3Qge1xuICBoZWlnaHQ6IDEwMHZoO1xuICBAaW5jbHVkZSBmbGV4ZWQoY29sdW1uLCBzdHJldGNoKTtcbn1cblxuLm1pbm9yIHtcbiAgb3BhY2l0eTogMC41O1xufVxuXG4uZnJhbWVkIHtcbiAgYm9yZGVyOiBub25lO1xufVxuXG4uZmlsbCB7XG4gIGZsZXgtZ3JvdzogMTtcbiAgQGluY2x1ZGUgZmxleGVkKGNvbHVtbiwgc3RyZXRjaCk7XG4gIG1hcmdpbjogJG1hcmdpbi1sIDA7XG59XG5cbi5mdWxsIHtcbiAgQGluY2x1ZGUgZmxleGVkKGNvbHVtbiwgc3RyZXRjaCk7XG4gIGZsZXgtZ3JvdzogMDtcbn1cblxuLnRvcCB7XG4gIEBtZWRpYSBzY3JlZW4gYW5kIChtaW4td2lkdGg6ICR3LWxpbS1kb3VibGUpIHtcbiAgICBAaW5jbHVkZSBmaXhlZC1oZWlnaHQoMTQ0cHgpO1xuICB9XG59XG5cbi5ib3R0b20ge1xuICBAbWVkaWEgc2NyZWVuIGFuZCAobWluLXdpZHRoOiAkdy1saW0tZG91YmxlKSB7XG4gICAgQGluY2x1ZGUgZml4ZWQtaGVpZ2h0KDM2cHgpO1xuICB9XG59XG5cblxuLndvcmtzcGFjZSB7XG4gIGZsZXgtZ3JvdzogMTtcbiAgd2lkdGg6IDEwMCU7XG4gIG1pbi1oZWlnaHQ6ICRoLXdvcmtzcGFjZS1zaW5nbGU7XG4gIEBpbmNsdWRlIGZsZXhlZChjb2x1bW4sIHN0cmV0Y2gpO1xuXG4gIEBtZWRpYSBzY3JlZW4gYW5kIChtaW4td2lkdGg6ICR3LWxpbS1kb3VibGUpIHtcbiAgICBAaW5jbHVkZSBmbGV4ZWQocm93LCBzdHJldGNoKTtcbiAgICB3aWR0aDogJHctd29ya3NwYWNlLW5hcnJvdztcbiAgICBtaW4taGVpZ2h0OiAkaC13b3Jrc3BhY2UtZG91YmxlO1xuICB9XG4gIEBtZWRpYSBzY3JlZW4gYW5kIChtaW4td2lkdGg6ICR3LWxpbS13aWRlcikge1xuICAgIHdpZHRoOiAkdy13b3Jrc3BhY2Utd2lkZTtcbiAgfVxufVxuXG4uY29sdW1uIHtcbiAgZmxleDogMSAxIDUwJTtcbiAgcGFkZGluZzogJG1hcmdpbi1tO1xuICBAaW5jbHVkZSBmbGV4ZWQoY29sdW1uLCBzdHJldGNoKTtcbn1cblxudGV4dGFyZWEge1xuICBmbGV4LWdyb3c6IDE7XG4gIEBpbmNsdWRlIGFyZWEoKTtcbiAgY29sb3I6IGluaGVyaXQ7XG4gIG91dGxpbmU6IG5vbmU7XG4gIHJlc2l6ZTogbm9uZTtcbn1cblxuIiwiJG1hcmdpbi14bDogNDhweDtcbiRtYXJnaW4tbDogMzZweDtcbiRtYXJnaW4tbTogMjRweDtcbiRtYXJnaW4tczogMTJweDtcbiRtYXJnaW4teHM6IDZweDtcblxuJGNvbC1iYWNrZ3JvdW5kOiAjMzAzMDMwO1xuJGNvbC1iYWNrZ3JvdW5kLWRrOiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCBibGFjaywgODApO1xuJGNvbC1iYWNrZ3JvdW5kLWx0OiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCB3aGl0ZSwgODApO1xuXG4kdy1saW0tZG91YmxlOiAxMjAwcHg7XG4kdy1saW0td2lkZXI6IDE1MDBweDtcbiR3LXdvcmtzcGFjZS1uYXJyb3c6IDExMDBweDtcbiR3LXdvcmtzcGFjZS13aWRlOiAxNDAwcHg7XG4kaC13b3Jrc3BhY2Utc2luZ2xlOiAxNjAwcHg7XG4kaC13b3Jrc3BhY2UtZG91YmxlOiA4MDBweDtcblxuQG1peGluIGZsZXhlZCgkZGlyZWN0aW9uLCAkYWxpZ24pIHtcbiAgZmxleC1ncm93OiAxO1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWRpcmVjdGlvbjogJGRpcmVjdGlvbjtcbiAgZmxleC13cmFwOiBub3dyYXA7XG4gIGFsaWduLWl0ZW1zOiAkYWxpZ247XG59XG5cbkBtaXhpbiBhcmVhKCkge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAkY29sLWJhY2tncm91bmQtZGs7XG4gIGJvcmRlcjogMXB4IHNvbGlkICRjb2wtYmFja2dyb3VuZC1sdDtcbiAgcGFkZGluZzogJG1hcmdpbi1tO1xufVxuXG5AbWl4aW4gZml4ZWQtaGVpZ2h0KCRoZWlnaHQpIHtcbiAgb3ZlcmZsb3cteTogYXV0bztcbiAgZmxleDogMCAwICRoZWlnaHQ7XG4gIG1pbi1oZWlnaHQ6ICRoZWlnaHQ7XG4gIG1heC1oZWlnaHQ6ICRoZWlnaHQ7XG4gIGhlaWdodDogJGhlaWdodDtcbn1cblxuIl19 */"
+module.exports = ".mat-progress-spinner circle, .mat-spinner circle {\n  stroke: white; }\n\n:host {\n  height: 100vh;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\n.minor {\n  opacity: 0.5; }\n\n.framed {\n  border: none; }\n\n.fill {\n  flex-grow: 1;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  margin: 36px 0; }\n\n.full {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  flex-grow: 0; }\n\n@media screen and (min-width: 1200px) {\n  .top {\n    overflow-y: auto;\n    flex: 0 0 144px;\n    min-height: 144px;\n    max-height: 144px;\n    height: 144px; } }\n\n@media screen and (min-width: 1200px) {\n  .bottom {\n    overflow-y: auto;\n    flex: 0 0 36px;\n    min-height: 36px;\n    max-height: 36px;\n    height: 36px; } }\n\n.workspace {\n  flex-grow: 1;\n  width: 100%;\n  min-height: 1600px;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\n@media screen and (min-width: 1200px) {\n    .workspace {\n      flex-grow: 1;\n      display: flex;\n      flex-direction: row;\n      flex-wrap: nowrap;\n      align-items: stretch;\n      width: 1100px;\n      max-width: 1100px;\n      min-height: 800px; } }\n\n@media screen and (min-width: 1500px) {\n    .workspace {\n      width: 1400px;\n      max-width: 1400px; } }\n\n.column {\n  flex: 1 1 50%;\n  padding: 24px;\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch; }\n\ntextarea {\n  flex-grow: 1;\n  background-color: #262626;\n  border: 1px solid #595959;\n  padding: 24px;\n  color: inherit;\n  outline: none;\n  resize: none; }\n\n.fill {\n  flex-grow: 1; }\n\n.progress {\n  display: none;\n  flex-flow: row nowrap;\n  align-items: center;\n  color: white;\n  font-size: 1rem; }\n\n.progress.visible {\n    display: flex; }\n\n.spinner-text {\n  margin-left: 12px; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIiwiL2NvZGUvcGVyc29uYWwvdG91cmV0dGUvc3JjL2FwcC9hcHAuY29tcG9uZW50LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBd0NBO0VBQ0UsY0FoQ2tCLEVBaUNuQjs7QUN4Q0Q7RUFDRSxjQUFhO0VEZ0JiLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJDakJzQjtFRGtCdEIsa0JBQWlCO0VBQ2pCLHFCQ25CK0IsRUFDaEM7O0FBRUQ7RUFDRSxhQUFZLEVBQ2I7O0FBRUQ7RUFDRSxhQUFZLEVBQ2I7O0FBRUQ7RUFDRSxhQUFZO0VER1osYUFBWTtFQUNaLGNBQWE7RUFDYix1QkNKc0I7RURLdEIsa0JBQWlCO0VBQ2pCLHFCQ04rQjtFQUMvQixlQUFtQixFQUNwQjs7QUFFRDtFREZFLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJDQ3NCO0VEQXRCLGtCQUFpQjtFQUNqQixxQkNEK0I7RUFDL0IsYUFBWSxFQUNiOztBQUdDO0VBREY7SURPRSxpQkFBZ0I7SUFDaEIsZ0JDTjZCO0lETzdCLGtCQ1A2QjtJRFE3QixrQkNSNkI7SURTN0IsY0NUNkIsRUFFOUIsRUFBQTs7QUFHQztFQURGO0lEQ0UsaUJBQWdCO0lBQ2hCLGVDQTRCO0lEQzVCLGlCQ0Q0QjtJREU1QixpQkNGNEI7SURHNUIsYUNINEIsRUFFN0IsRUFBQTs7QUFHRDtFQUNFLGFBQVk7RUFDWixZQUFXO0VBQ1gsbUJEM0J5QjtFQUl6QixhQUFZO0VBQ1osY0FBYTtFQUNiLHVCQ3NCc0I7RURyQnRCLGtCQUFpQjtFQUNqQixxQkNvQitCLEVBWWhDOztBQVZDO0lBTkY7TURwQkUsYUFBWTtNQUNaLGNBQWE7TUFDYixvQkN5QnFCO01EeEJyQixrQkFBaUI7TUFDakIscUJDdUI4QjtNQUM1QixjRGxDdUI7TUNtQ3ZCLGtCRG5DdUI7TUNvQ3ZCLGtCRGpDc0IsRUN1Q3pCLEVBQUE7O0FBSkM7SUFaRjtNQWFJLGNEdENxQjtNQ3VDckIsa0JEdkNxQixFQ3lDeEIsRUFBQTs7QUFFRDtFQUNFLGNBQWE7RUFDYixjRHpEYTtFQWlCYixhQUFZO0VBQ1osY0FBYTtFQUNiLHVCQ3VDc0I7RUR0Q3RCLGtCQUFpQjtFQUNqQixxQkNxQytCLEVBQ2hDOztBQUVEO0VBQ0UsYUFBWTtFRHJDWiwwQkFwQmlEO0VBcUJqRCwwQkFwQmlEO0VBcUJqRCxjQTNCYTtFQ2dFYixlQUFjO0VBQ2QsY0FBYTtFQUNiLGFBQVksRUFDYjs7QUFFRDtFQUNFLGFBQVksRUFDYjs7QUFFRDtFQUNFLGNBQWE7RUFDYixzQkFBcUI7RUFDckIsb0JBQW1CO0VBQ25CLGFEdEVrQjtFQ3VFbEIsZ0JBQWUsRUFLaEI7O0FBVkQ7SUFRSSxjQUFhLEVBQ2Q7O0FBR0g7RUFDRSxrQkRyRmEsRUNzRmQiLCJmaWxlIjoic3JjL2FwcC9hcHAuY29tcG9uZW50LnNjc3MiLCJzb3VyY2VzQ29udGVudCI6WyIkbWFyZ2luLXhsOiA0OHB4O1xuJG1hcmdpbi1sOiAzNnB4O1xuJG1hcmdpbi1tOiAyNHB4O1xuJG1hcmdpbi1zOiAxMnB4O1xuJG1hcmdpbi14czogNnB4O1xuXG4kY29sLWJhY2tncm91bmQ6ICMzMDMwMzA7XG4kY29sLWJhY2tncm91bmQtZGs6IG1peCgkY29sLWJhY2tncm91bmQsIGJsYWNrLCA4MCk7XG4kY29sLWJhY2tncm91bmQtbHQ6IG1peCgkY29sLWJhY2tncm91bmQsIHdoaXRlLCA4MCk7XG4kY29sLXByb2dyZXNzOiB3aGl0ZTtcblxuJHctbGltLWRvdWJsZTogMTIwMHB4O1xuJHctbGltLXdpZGVyOiAxNTAwcHg7XG4kdy13b3Jrc3BhY2UtbmFycm93OiAxMTAwcHg7XG4kdy13b3Jrc3BhY2Utd2lkZTogMTQwMHB4O1xuJGgtd29ya3NwYWNlLXNpbmdsZTogMTYwMHB4O1xuJGgtd29ya3NwYWNlLWRvdWJsZTogODAwcHg7XG5cbkBtaXhpbiBmbGV4ZWQoJGRpcmVjdGlvbiwgJGFsaWduKSB7XG4gIGZsZXgtZ3JvdzogMTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxleC1kaXJlY3Rpb246ICRkaXJlY3Rpb247XG4gIGZsZXgtd3JhcDogbm93cmFwO1xuICBhbGlnbi1pdGVtczogJGFsaWduO1xufVxuXG5AbWl4aW4gYXJlYSgpIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogJGNvbC1iYWNrZ3JvdW5kLWRrO1xuICBib3JkZXI6IDFweCBzb2xpZCAkY29sLWJhY2tncm91bmQtbHQ7XG4gIHBhZGRpbmc6ICRtYXJnaW4tbTtcbn1cblxuQG1peGluIGZpeGVkLWhlaWdodCgkaGVpZ2h0KSB7XG4gIG92ZXJmbG93LXk6IGF1dG87XG4gIGZsZXg6IDAgMCAkaGVpZ2h0O1xuICBtaW4taGVpZ2h0OiAkaGVpZ2h0O1xuICBtYXgtaGVpZ2h0OiAkaGVpZ2h0O1xuICBoZWlnaHQ6ICRoZWlnaHQ7XG59XG5cbi5tYXQtcHJvZ3Jlc3Mtc3Bpbm5lciBjaXJjbGUsIC5tYXQtc3Bpbm5lciBjaXJjbGUge1xuICBzdHJva2U6ICRjb2wtcHJvZ3Jlc3M7XG59XG5cbiIsIkBpbXBvcnQgJ2NvbW1vbic7XG5cbjpob3N0IHtcbiAgaGVpZ2h0OiAxMDB2aDtcbiAgQGluY2x1ZGUgZmxleGVkKGNvbHVtbiwgc3RyZXRjaCk7XG59XG5cbi5taW5vciB7XG4gIG9wYWNpdHk6IDAuNTtcbn1cblxuLmZyYW1lZCB7XG4gIGJvcmRlcjogbm9uZTtcbn1cblxuLmZpbGwge1xuICBmbGV4LWdyb3c6IDE7XG4gIEBpbmNsdWRlIGZsZXhlZChjb2x1bW4sIHN0cmV0Y2gpO1xuICBtYXJnaW46ICRtYXJnaW4tbCAwO1xufVxuXG4uZnVsbCB7XG4gIEBpbmNsdWRlIGZsZXhlZChjb2x1bW4sIHN0cmV0Y2gpO1xuICBmbGV4LWdyb3c6IDA7XG59XG5cbi50b3Age1xuICBAbWVkaWEgc2NyZWVuIGFuZCAobWluLXdpZHRoOiAkdy1saW0tZG91YmxlKSB7XG4gICAgQGluY2x1ZGUgZml4ZWQtaGVpZ2h0KDE0NHB4KTtcbiAgfVxufVxuXG4uYm90dG9tIHtcbiAgQG1lZGlhIHNjcmVlbiBhbmQgKG1pbi13aWR0aDogJHctbGltLWRvdWJsZSkge1xuICAgIEBpbmNsdWRlIGZpeGVkLWhlaWdodCgzNnB4KTtcbiAgfVxufVxuXG5cbi53b3Jrc3BhY2Uge1xuICBmbGV4LWdyb3c6IDE7XG4gIHdpZHRoOiAxMDAlO1xuICBtaW4taGVpZ2h0OiAkaC13b3Jrc3BhY2Utc2luZ2xlO1xuICBAaW5jbHVkZSBmbGV4ZWQoY29sdW1uLCBzdHJldGNoKTtcblxuICBAbWVkaWEgc2NyZWVuIGFuZCAobWluLXdpZHRoOiAkdy1saW0tZG91YmxlKSB7XG4gICAgQGluY2x1ZGUgZmxleGVkKHJvdywgc3RyZXRjaCk7XG4gICAgd2lkdGg6ICR3LXdvcmtzcGFjZS1uYXJyb3c7XG4gICAgbWF4LXdpZHRoOiAkdy13b3Jrc3BhY2UtbmFycm93O1xuICAgIG1pbi1oZWlnaHQ6ICRoLXdvcmtzcGFjZS1kb3VibGU7XG4gIH1cbiAgQG1lZGlhIHNjcmVlbiBhbmQgKG1pbi13aWR0aDogJHctbGltLXdpZGVyKSB7XG4gICAgd2lkdGg6ICR3LXdvcmtzcGFjZS13aWRlO1xuICAgIG1heC13aWR0aDogJHctd29ya3NwYWNlLXdpZGU7XG4gIH1cbn1cblxuLmNvbHVtbiB7XG4gIGZsZXg6IDEgMSA1MCU7XG4gIHBhZGRpbmc6ICRtYXJnaW4tbTtcbiAgQGluY2x1ZGUgZmxleGVkKGNvbHVtbiwgc3RyZXRjaCk7XG59XG5cbnRleHRhcmVhIHtcbiAgZmxleC1ncm93OiAxO1xuICBAaW5jbHVkZSBhcmVhKCk7XG4gIGNvbG9yOiBpbmhlcml0O1xuICBvdXRsaW5lOiBub25lO1xuICByZXNpemU6IG5vbmU7XG59XG5cbi5maWxsIHtcbiAgZmxleC1ncm93OiAxO1xufVxuXG4ucHJvZ3Jlc3Mge1xuICBkaXNwbGF5OiBub25lO1xuICBmbGV4LWZsb3c6IHJvdyBub3dyYXA7XG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XG4gIGNvbG9yOiAkY29sLXByb2dyZXNzO1xuICBmb250LXNpemU6IDFyZW07XG5cbiAgJi52aXNpYmxlIHtcbiAgICBkaXNwbGF5OiBmbGV4O1xuICB9XG59XG5cbi5zcGlubmVyLXRleHQge1xuICBtYXJnaW4tbGVmdDogJG1hcmdpbi1zO1xufVxuIl19 */"
 
 /***/ }),
 
@@ -1782,6 +2160,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _projects_lex_src_lib_analysis_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../projects/lex/src/lib/analysis.service */ "./projects/lex/src/lib/analysis.service.ts");
 /* harmony import */ var _projects_lex_src_lib_model_analysis_result__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../projects/lex/src/lib/model/analysis-result */ "./projects/lex/src/lib/model/analysis-result.ts");
+/* harmony import */ var _projects_lex_src_lib_deco_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../projects/lex/src/lib/deco.service */ "./projects/lex/src/lib/deco.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1829,31 +2208,53 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
 var AppComponent = /** @class */ (function () {
-    function AppComponent(analyzer) {
+    function AppComponent(analyzer, decorator, zone) {
         this.analyzer = analyzer;
+        this.decorator = decorator;
+        this.zone = zone;
         this.text = '';
-        this.analysis = new _projects_lex_src_lib_model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["AnalysisResult"]([]);
+        this.analysis = new _projects_lex_src_lib_model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["AnalysisResult"]([], false);
         this.result = '';
+        this.inProgress = false;
     }
     AppComponent.prototype.onTextChanged = function (text) {
         this.text = text;
     };
+    AppComponent.prototype.mod = function () {
+        var _this = this;
+        this.inProgress = true;
+        this.result = null;
+        console.log('ON');
+        setTimeout(function () {
+            _this.modify().then(function () {
+                console.log('OFF');
+                _this.inProgress = false;
+            });
+        }, 10);
+    };
     AppComponent.prototype.modify = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+        var _this = this;
+        return new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         _a = this;
                         return [4 /*yield*/, this.analyzer.analyze(this.text, null)];
                     case 1:
-                        _a.analysis = _b.sent();
-                        this.result = this.text;
+                        _a.analysis = _c.sent();
+                        this.inProgress = true;
+                        _b = this;
+                        return [4 /*yield*/, this.decorator.decorate(this.analysis)];
+                    case 2:
+                        _b.result = _c.sent();
+                        resolve();
                         return [2 /*return*/];
                 }
             });
-        });
+        }); });
     };
     AppComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
@@ -1861,7 +2262,7 @@ var AppComponent = /** @class */ (function () {
             template: __webpack_require__(/*! ./app.component.html */ "./src/app/app.component.html"),
             styles: [__webpack_require__(/*! ./app.component.scss */ "./src/app/app.component.scss")]
         }),
-        __metadata("design:paramtypes", [_projects_lex_src_lib_analysis_service__WEBPACK_IMPORTED_MODULE_1__["AnalysisService"]])
+        __metadata("design:paramtypes", [_projects_lex_src_lib_analysis_service__WEBPACK_IMPORTED_MODULE_1__["AnalysisService"], _projects_lex_src_lib_deco_service__WEBPACK_IMPORTED_MODULE_3__["DecoService"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"]])
     ], AppComponent);
     return AppComponent;
 }());
@@ -1894,6 +2295,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_song_selector_song_selector_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/song-selector/song-selector.component */ "./src/app/components/song-selector/song-selector.component.ts");
 /* harmony import */ var lex__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! lex */ "./dist/lex/fesm5/tourette-lex.js");
 /* harmony import */ var _components_analysis_token_analysis_token_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/analysis-token/analysis-token.component */ "./src/app/components/analysis-token/analysis-token.component.ts");
+/* harmony import */ var _angular_fire__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/fire */ "./node_modules/@angular/fire/index.js");
+/* harmony import */ var _angular_fire_firestore__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/fire/firestore */ "./node_modules/@angular/fire/firestore/index.js");
+/* harmony import */ var _environments_environment__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../environments/environment */ "./src/environments/environment.ts");
+/* harmony import */ var _projects_lex_src_lib_deco_service__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../projects/lex/src/lib/deco.service */ "./projects/lex/src/lib/deco.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1947,10 +2352,14 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
+
+
+
 function createFLSInstance(http) {
     return new _d78ng_file_loader__WEBPACK_IMPORTED_MODULE_8__["FileLoaderService"](http);
 }
-function init(songs) {
+function init(songs, dict, dictp) {
     var _this = this;
     return function () {
         return new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
@@ -1960,7 +2369,9 @@ function init(songs) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, Promise.all([
-                                songs.load('https://dejv78.github.io/tourette/assets/songs.json', '/assets/songs.json'),
+                                songs.load('/assets/songs.json'),
+                                dict.load('/assets/dictionary.json'),
+                                dictp.load('/assets/dictionary_prepositions.json'),
                             ])];
                     case 1:
                         _a.sent();
@@ -1986,10 +2397,13 @@ var AppModule = /** @class */ (function () {
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
                 _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_3__["BrowserAnimationsModule"],
                 _angular_common_http__WEBPACK_IMPORTED_MODULE_7__["HttpClientModule"],
+                _angular_fire__WEBPACK_IMPORTED_MODULE_12__["AngularFireModule"].initializeApp(_environments_environment__WEBPACK_IMPORTED_MODULE_14__["environment"].firebase),
+                _angular_fire_firestore__WEBPACK_IMPORTED_MODULE_13__["AngularFirestoreModule"],
                 _angular_material__WEBPACK_IMPORTED_MODULE_4__["MatToolbarModule"],
                 _angular_material__WEBPACK_IMPORTED_MODULE_4__["MatTabsModule"],
                 _angular_material__WEBPACK_IMPORTED_MODULE_4__["MatButtonModule"],
                 _angular_material__WEBPACK_IMPORTED_MODULE_4__["MatTooltipModule"],
+                _angular_material__WEBPACK_IMPORTED_MODULE_4__["MatProgressSpinnerModule"],
             ],
             declarations: [
                 _app_component__WEBPACK_IMPORTED_MODULE_2__["AppComponent"],
@@ -1999,8 +2413,11 @@ var AppModule = /** @class */ (function () {
             ],
             providers: [
                 { provide: _app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_SONGS"], useFactory: createFLSInstance, deps: [_angular_common_http__WEBPACK_IMPORTED_MODULE_7__["HttpClient"]] },
-                { provide: _angular_core__WEBPACK_IMPORTED_MODULE_1__["APP_INITIALIZER"], useFactory: init, deps: [_app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_SONGS"]], multi: true },
+                { provide: _app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_DICT"], useFactory: createFLSInstance, deps: [_angular_common_http__WEBPACK_IMPORTED_MODULE_7__["HttpClient"]] },
+                { provide: _app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_DICTP"], useFactory: createFLSInstance, deps: [_angular_common_http__WEBPACK_IMPORTED_MODULE_7__["HttpClient"]] },
+                { provide: _angular_core__WEBPACK_IMPORTED_MODULE_1__["APP_INITIALIZER"], useFactory: init, deps: [_app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_SONGS"], _app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_DICT"], _app_tokens__WEBPACK_IMPORTED_MODULE_6__["DATA_DICTP"]], multi: true },
                 lex__WEBPACK_IMPORTED_MODULE_10__["AnalysisService"],
+                _projects_lex_src_lib_deco_service__WEBPACK_IMPORTED_MODULE_15__["DecoService"],
             ],
             bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_2__["AppComponent"]]
         })
@@ -2016,15 +2433,19 @@ var AppModule = /** @class */ (function () {
 /*!*******************************!*\
   !*** ./src/app/app.tokens.ts ***!
   \*******************************/
-/*! exports provided: DATA_SONGS */
+/*! exports provided: DATA_SONGS, DATA_DICT, DATA_DICTP */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATA_SONGS", function() { return DATA_SONGS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATA_DICT", function() { return DATA_DICT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATA_DICTP", function() { return DATA_DICTP; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 
 var DATA_SONGS = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionToken"]("data.songs");
+var DATA_DICT = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionToken"]("data.dict");
+var DATA_DICTP = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionToken"]("data.dict.p");
 
 
 /***/ }),
@@ -2036,7 +2457,7 @@ var DATA_SONGS = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionToken"
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"header\" [ngClass]=\"cls\" [matTooltip]=\"tooltip\">\n  <span class=\"tabbed\" [ngClass]=\"cls\">{{token.kind}}</span>\n  <span class=\"flexible\"></span>\n  <span *ngIf=\"token.syllables\" class=\"colored\" [ngClass]=\"cls\">{{token.syllables}}</span>\n</div>\n<div class=\"text\" [ngClass]=\"cls\">\n  {{token.text}}\n</div>\n<div class=\"footer\" [ngClass]=\"cls\">\n  <span class=\"colored\" [ngClass]=\"cls\" *ngIf=\"details\">{{details}}</span>&nbsp;\n</div>\n"
+module.exports = "<div class=\"header\" [ngClass]=\"cls\" [matTooltip]=\"tooltip\">\n  <span class=\"tabbed\" [ngClass]=\"cls\">{{token.kind}}</span>\n  <span class=\"flexible\"></span>\n  <span *ngIf=\"token.syllables\" class=\"colored bld\" [ngClass]=\"cls\">{{token.syllables}}</span>\n</div>\n<div class=\"text\" [ngClass]=\"cls\">\n  {{token.text}}\n</div>\n<div class=\"footer\" [ngClass]=\"cls\">\n  <span class=\"colored\" [ngClass]=\"cls\" *ngIf=\"details\">{{details}}</span>&nbsp;\n</div>\n"
 
 /***/ }),
 
@@ -2047,7 +2468,7 @@ module.exports = "<div class=\"header\" [ngClass]=\"cls\" [matTooltip]=\"tooltip
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":host {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  flex-grow: 0;\n  margin: 6px;\n  min-width: 60px; }\n\n.header {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: flex-end;\n  border-color: grey;\n  border-bottom-style: solid;\n  border-bottom-width: 1px;\n  font-size: 0.75em; }\n\n.header.punct {\n    border-color: silver; }\n\n.header.empty {\n    border-color: darkslateblue; }\n\n.header.conj {\n    border-color: darksalmon; }\n\n.header.prep {\n    border-color: lightcoral; }\n\n.header.num {\n    border-color: powderblue; }\n\n.header.pronoun {\n    border-color: aquamarine; }\n\n.header.part {\n    border-color: lavender; }\n\n.text {\n  background-color: #1b1b1b;\n  color: grey; }\n\n.text.punct {\n    color: silver; }\n\n.text.empty {\n    color: darkslateblue; }\n\n.text.conj {\n    color: darksalmon; }\n\n.text.prep {\n    color: lightcoral; }\n\n.text.num {\n    color: powderblue; }\n\n.text.pronoun {\n    color: aquamarine; }\n\n.text.part {\n    color: lavender; }\n\n.footer {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: flex-start;\n  border-color: grey;\n  font-size: 0.75em;\n  border-top-style: solid;\n  border-top-width: 1px; }\n\n.footer.punct {\n    border-color: silver; }\n\n.footer.empty {\n    border-color: darkslateblue; }\n\n.footer.conj {\n    border-color: darksalmon; }\n\n.footer.prep {\n    border-color: lightcoral; }\n\n.footer.num {\n    border-color: powderblue; }\n\n.footer.pronoun {\n    border-color: aquamarine; }\n\n.footer.part {\n    border-color: lavender; }\n\n.tabbed {\n  padding: 0 2px;\n  color: #262626;\n  font-weight: bolder;\n  border-top-right-radius: 2px;\n  border-top-left-radius: 2px;\n  flex-grow: 0;\n  background-color: grey; }\n\n.tabbed.punct {\n    background-color: silver; }\n\n.tabbed.empty {\n    background-color: darkslateblue; }\n\n.tabbed.conj {\n    background-color: darksalmon; }\n\n.tabbed.prep {\n    background-color: lightcoral; }\n\n.tabbed.num {\n    background-color: powderblue; }\n\n.tabbed.pronoun {\n    background-color: aquamarine; }\n\n.tabbed.part {\n    background-color: lavender; }\n\n.colored {\n  color: grey; }\n\n.colored.punct {\n    color: silver; }\n\n.colored.empty {\n    color: darkslateblue; }\n\n.colored.conj {\n    color: darksalmon; }\n\n.colored.prep {\n    color: lightcoral; }\n\n.colored.num {\n    color: powderblue; }\n\n.colored.pronoun {\n    color: aquamarine; }\n\n.colored.part {\n    color: lavender; }\n\n.flexible {\n  flex: 1 0 12px; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9hcHAvY29tcG9uZW50cy9hbmFseXNpcy10b2tlbi9hbmFseXNpcy10b2tlbi5jb21wb25lbnQuc2NzcyIsIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUVBO0VDZ0JFLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJEakJzQjtFQ2tCdEIsa0JBQWlCO0VBQ2pCLHFCRG5CK0I7RUFDL0IsYUFBWTtFQUNaLFlDRGE7RURFYixnQkFBZSxFQUNoQjs7QUF1Q0Q7RUM1QkUsYUFBWTtFQUNaLGNBQWE7RUFDYixvQkQyQm1CO0VDMUJuQixrQkFBaUI7RUFDakIsc0JEeUI2QjtFQTFCN0IsbUJBWHFCO0VBdUNyQiwyQkFBMEI7RUFDMUIseUJBekNnQjtFQTBDaEIsa0JBQWlCLEVBQ2xCOztBQTlCQztJQUNFLHFCQVp5QixFQWExQjs7QUFDRDtJQUNFLDRCQWQwQixFQWUzQjs7QUFDRDtJQUNFLHlCQWhCNkIsRUFpQjlCOztBQUNEO0lBQ0UseUJBbEI2QixFQW1COUI7O0FBQ0Q7SUFDRSx5QkFwQndCLEVBcUJ6Qjs7QUFDRDtJQUNFLHlCQXRCeUIsRUF1QjFCOztBQUNEO0lBQ0UsdUJBeEJvQixFQXlCckI7O0FBWUg7RUFDRSwwQkFBb0Q7RUFsQ3BELFlBWHFCLEVBK0N0Qjs7QUFuQ0M7SUFDRSxjQVp5QixFQWExQjs7QUFDRDtJQUNFLHFCQWQwQixFQWUzQjs7QUFDRDtJQUNFLGtCQWhCNkIsRUFpQjlCOztBQUNEO0lBQ0Usa0JBbEI2QixFQW1COUI7O0FBQ0Q7SUFDRSxrQkFwQndCLEVBcUJ6Qjs7QUFDRDtJQUNFLGtCQXRCeUIsRUF1QjFCOztBQUNEO0lBQ0UsZ0JBeEJvQixFQXlCckI7O0FBaUJIO0VDekNFLGFBQVk7RUFDWixjQUFhO0VBQ2Isb0JEd0NtQjtFQ3ZDbkIsa0JBQWlCO0VBQ2pCLHdCRHNDK0I7RUF2Qy9CLG1CQVhxQjtFQW9EckIsa0JBQWlCO0VBQ2pCLHdCQUF1QjtFQUN2QixzQkF2RGdCLEVBeURqQjs7QUE1Q0M7SUFDRSxxQkFaeUIsRUFhMUI7O0FBQ0Q7SUFDRSw0QkFkMEIsRUFlM0I7O0FBQ0Q7SUFDRSx5QkFoQjZCLEVBaUI5Qjs7QUFDRDtJQUNFLHlCQWxCNkIsRUFtQjlCOztBQUNEO0lBQ0UseUJBcEJ3QixFQXFCekI7O0FBQ0Q7SUFDRSx5QkF0QnlCLEVBdUIxQjs7QUFDRDtJQUNFLHVCQXhCb0IsRUF5QnJCOztBQTBCSDtFQUNFLGVBQWM7RUFDZCxlQy9EaUQ7RURnRWpELG9CQUFtQjtFQUNuQiw2QkFBNEI7RUFDNUIsNEJBQTJCO0VBQzNCLGFBQVk7RUFyRFosdUJBWHFCLEVBa0V0Qjs7QUF0REM7SUFDRSx5QkFaeUIsRUFhMUI7O0FBQ0Q7SUFDRSxnQ0FkMEIsRUFlM0I7O0FBQ0Q7SUFDRSw2QkFoQjZCLEVBaUI5Qjs7QUFDRDtJQUNFLDZCQWxCNkIsRUFtQjlCOztBQUNEO0lBQ0UsNkJBcEJ3QixFQXFCekI7O0FBQ0Q7SUFDRSw2QkF0QnlCLEVBdUIxQjs7QUFDRDtJQUNFLDJCQXhCb0IsRUF5QnJCOztBQW9DSDtFQXpERSxZQVhxQixFQXNFdEI7O0FBMURDO0lBQ0UsY0FaeUIsRUFhMUI7O0FBQ0Q7SUFDRSxxQkFkMEIsRUFlM0I7O0FBQ0Q7SUFDRSxrQkFoQjZCLEVBaUI5Qjs7QUFDRDtJQUNFLGtCQWxCNkIsRUFtQjlCOztBQUNEO0lBQ0Usa0JBcEJ3QixFQXFCekI7O0FBQ0Q7SUFDRSxrQkF0QnlCLEVBdUIxQjs7QUFDRDtJQUNFLGdCQXhCb0IsRUF5QnJCOztBQXdDSDtFQUNFLGVDaEZhLEVEaUZkIiwiZmlsZSI6InNyYy9hcHAvY29tcG9uZW50cy9hbmFseXNpcy10b2tlbi9hbmFseXNpcy10b2tlbi5jb21wb25lbnQuc2NzcyIsInNvdXJjZXNDb250ZW50IjpbIkBpbXBvcnQgJ2NvbW1vbic7XG5cbjpob3N0IHtcbiAgQGluY2x1ZGUgZmxleGVkKGNvbHVtbiwgc3RyZXRjaCk7XG4gIGZsZXgtZ3JvdzogMDtcbiAgbWFyZ2luOiAkbWFyZ2luLXhzO1xuICBtaW4td2lkdGg6IDYwcHg7XG59XG5cbiRib3JkZXItd2lkdGg6IDFweDtcbiRjb2wta2luZC1kZWZhdWx0OiBncmV5O1xuJGNvbC1raW5kLXB1bmN0dWF0aW9uOiBzaWx2ZXI7XG4kY29sLWtpbmQtZW1wdHk6IGRhcmtzbGF0ZWJsdWU7XG4kY29sLWtpbmQtY29uanVuY3Rpb246IGRhcmtzYWxtb247XG4kY29sLWtpbmQtcHJlcG9zaXRpb246IGxpZ2h0Y29yYWw7XG4kY29sLWtpbmQtbnVtYmVyOiBwb3dkZXJibHVlO1xuJGNvbC1raW5kLXByb25vdW46IGFxdWFtYXJpbmU7XG4kY29sLWtpbmQtcGFydDogbGF2ZW5kZXI7XG5cblxuQG1peGluIGtpbmQtY29sb3IoJHByb3ApIHtcbiAgI3skcHJvcH06ICRjb2wta2luZC1kZWZhdWx0O1xuICAmLnB1bmN0IHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXB1bmN0dWF0aW9uO1xuICB9XG4gICYuZW1wdHkge1xuICAgICN7JHByb3B9OiAkY29sLWtpbmQtZW1wdHk7XG4gIH1cbiAgJi5jb25qIHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLWNvbmp1bmN0aW9uO1xuICB9XG4gICYucHJlcCB7XG4gICAgI3skcHJvcH06ICRjb2wta2luZC1wcmVwb3NpdGlvbjtcbiAgfVxuICAmLm51bSB7XG4gICAgI3skcHJvcH06ICRjb2wta2luZC1udW1iZXI7XG4gIH1cbiAgJi5wcm9ub3VuIHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXByb25vdW47XG4gIH1cbiAgJi5wYXJ0IHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXBhcnQ7XG4gIH1cbn1cblxuXG4uaGVhZGVyIHtcbiAgQGluY2x1ZGUgZmxleGVkKHJvdywgZmxleC1lbmQpO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJvcmRlci1jb2xvcik7XG4gIGJvcmRlci1ib3R0b20tc3R5bGU6IHNvbGlkO1xuICBib3JkZXItYm90dG9tLXdpZHRoOiAkYm9yZGVyLXdpZHRoO1xuICBmb250LXNpemU6IDAuNzVlbTtcbn1cblxuLnRleHQge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiBtaXgoJGNvbC1iYWNrZ3JvdW5kLWRrLCBibGFjaywgNzApO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGNvbG9yKTtcbn1cblxuLmZvb3RlciB7XG4gIEBpbmNsdWRlIGZsZXhlZChyb3csIGZsZXgtc3RhcnQpO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJvcmRlci1jb2xvcik7XG4gIGZvbnQtc2l6ZTogMC43NWVtO1xuICBib3JkZXItdG9wLXN0eWxlOiBzb2xpZDtcbiAgYm9yZGVyLXRvcC13aWR0aDogJGJvcmRlci13aWR0aDtcblxufVxuXG4udGFiYmVkIHtcbiAgcGFkZGluZzogMCAycHg7XG4gIGNvbG9yOiAkY29sLWJhY2tncm91bmRfZGs7XG4gIGZvbnQtd2VpZ2h0OiBib2xkZXI7XG4gIGJvcmRlci10b3AtcmlnaHQtcmFkaXVzOiAycHg7XG4gIGJvcmRlci10b3AtbGVmdC1yYWRpdXM6IDJweDtcbiAgZmxleC1ncm93OiAwO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJhY2tncm91bmQtY29sb3IpO1xufVxuXG4uY29sb3JlZCB7XG4gIEBpbmNsdWRlIGtpbmQtY29sb3IoY29sb3IpO1xufVxuXG4uZmxleGlibGUge1xuICBmbGV4OiAxIDAgJG1hcmdpbi1zO1xufVxuIiwiJG1hcmdpbi14bDogNDhweDtcbiRtYXJnaW4tbDogMzZweDtcbiRtYXJnaW4tbTogMjRweDtcbiRtYXJnaW4tczogMTJweDtcbiRtYXJnaW4teHM6IDZweDtcblxuJGNvbC1iYWNrZ3JvdW5kOiAjMzAzMDMwO1xuJGNvbC1iYWNrZ3JvdW5kLWRrOiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCBibGFjaywgODApO1xuJGNvbC1iYWNrZ3JvdW5kLWx0OiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCB3aGl0ZSwgODApO1xuXG4kdy1saW0tZG91YmxlOiAxMjAwcHg7XG4kdy1saW0td2lkZXI6IDE1MDBweDtcbiR3LXdvcmtzcGFjZS1uYXJyb3c6IDExMDBweDtcbiR3LXdvcmtzcGFjZS13aWRlOiAxNDAwcHg7XG4kaC13b3Jrc3BhY2Utc2luZ2xlOiAxNjAwcHg7XG4kaC13b3Jrc3BhY2UtZG91YmxlOiA4MDBweDtcblxuQG1peGluIGZsZXhlZCgkZGlyZWN0aW9uLCAkYWxpZ24pIHtcbiAgZmxleC1ncm93OiAxO1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWRpcmVjdGlvbjogJGRpcmVjdGlvbjtcbiAgZmxleC13cmFwOiBub3dyYXA7XG4gIGFsaWduLWl0ZW1zOiAkYWxpZ247XG59XG5cbkBtaXhpbiBhcmVhKCkge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAkY29sLWJhY2tncm91bmQtZGs7XG4gIGJvcmRlcjogMXB4IHNvbGlkICRjb2wtYmFja2dyb3VuZC1sdDtcbiAgcGFkZGluZzogJG1hcmdpbi1tO1xufVxuXG5AbWl4aW4gZml4ZWQtaGVpZ2h0KCRoZWlnaHQpIHtcbiAgb3ZlcmZsb3cteTogYXV0bztcbiAgZmxleDogMCAwICRoZWlnaHQ7XG4gIG1pbi1oZWlnaHQ6ICRoZWlnaHQ7XG4gIG1heC1oZWlnaHQ6ICRoZWlnaHQ7XG4gIGhlaWdodDogJGhlaWdodDtcbn1cblxuIl19 */"
+module.exports = ".mat-progress-spinner circle, .mat-spinner circle {\n  stroke: white; }\n\n:host {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  align-items: stretch;\n  flex-grow: 0;\n  margin: 6px;\n  min-width: 80px; }\n\n.header {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: flex-end;\n  border-color: grey;\n  border-bottom-style: solid;\n  border-bottom-width: 1px;\n  font-size: 0.75em; }\n\n.header.punct {\n    border-color: silver; }\n\n.header.empty {\n    border-color: darkslateblue; }\n\n.header.conj {\n    border-color: darksalmon; }\n\n.header.prep {\n    border-color: lightcoral; }\n\n.header.num {\n    border-color: powderblue; }\n\n.header.pronoun {\n    border-color: aquamarine; }\n\n.header.part {\n    border-color: lavender; }\n\n.header.conn {\n    border-color: crimson; }\n\n.text {\n  background-color: #1b1b1b;\n  color: grey; }\n\n.text.punct {\n    color: silver; }\n\n.text.empty {\n    color: darkslateblue; }\n\n.text.conj {\n    color: darksalmon; }\n\n.text.prep {\n    color: lightcoral; }\n\n.text.num {\n    color: powderblue; }\n\n.text.pronoun {\n    color: aquamarine; }\n\n.text.part {\n    color: lavender; }\n\n.text.conn {\n    color: crimson; }\n\n.footer {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: flex-start;\n  border-color: grey;\n  font-size: 0.75em;\n  border-top-style: solid;\n  border-top-width: 1px; }\n\n.footer.punct {\n    border-color: silver; }\n\n.footer.empty {\n    border-color: darkslateblue; }\n\n.footer.conj {\n    border-color: darksalmon; }\n\n.footer.prep {\n    border-color: lightcoral; }\n\n.footer.num {\n    border-color: powderblue; }\n\n.footer.pronoun {\n    border-color: aquamarine; }\n\n.footer.part {\n    border-color: lavender; }\n\n.footer.conn {\n    border-color: crimson; }\n\n.tabbed {\n  padding: 0 2px;\n  color: #262626;\n  font-weight: bolder;\n  border-top-right-radius: 2px;\n  border-top-left-radius: 2px;\n  flex-grow: 0;\n  background-color: grey; }\n\n.tabbed.punct {\n    background-color: silver; }\n\n.tabbed.empty {\n    background-color: darkslateblue; }\n\n.tabbed.conj {\n    background-color: darksalmon; }\n\n.tabbed.prep {\n    background-color: lightcoral; }\n\n.tabbed.num {\n    background-color: powderblue; }\n\n.tabbed.pronoun {\n    background-color: aquamarine; }\n\n.tabbed.part {\n    background-color: lavender; }\n\n.tabbed.conn {\n    background-color: crimson; }\n\n.colored {\n  color: grey; }\n\n.colored.punct {\n    color: silver; }\n\n.colored.empty {\n    color: darkslateblue; }\n\n.colored.conj {\n    color: darksalmon; }\n\n.colored.prep {\n    color: lightcoral; }\n\n.colored.num {\n    color: powderblue; }\n\n.colored.pronoun {\n    color: aquamarine; }\n\n.colored.part {\n    color: lavender; }\n\n.colored.conn {\n    color: crimson; }\n\n.flexible {\n  flex: 1 0 12px; }\n\n.bld {\n  font-weight: bolder;\n  font-size: larger; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIiwiL2NvZGUvcGVyc29uYWwvdG91cmV0dGUvc3JjL2FwcC9jb21wb25lbnRzL2FuYWx5c2lzLXRva2VuL2FuYWx5c2lzLXRva2VuLmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQXdDQTtFQUNFLGNBaENrQixFQWlDbkI7O0FDeENEO0VEaUJFLGFBQVk7RUFDWixjQUFhO0VBQ2IsdUJDbEJzQjtFRG1CdEIsa0JBQWlCO0VBQ2pCLHFCQ3BCK0I7RUFDL0IsYUFBWTtFQUNaLFlERGE7RUNFYixnQkFBZSxFQUNoQjs7QUEyQ0Q7RUQvQkUsYUFBWTtFQUNaLGNBQWE7RUFDYixvQkM4Qm1CO0VEN0JuQixrQkFBaUI7RUFDakIsc0JDNEI2QjtFQTdCN0IsbUJBWnFCO0VBMkNyQiwyQkFBMEI7RUFDMUIseUJBN0NnQjtFQThDaEIsa0JBQWlCLEVBQ2xCOztBQWpDQztJQUNFLHFCQWJ5QixFQWMxQjs7QUFDRDtJQUNFLDRCQWYwQixFQWdCM0I7O0FBQ0Q7SUFDRSx5QkFqQjZCLEVBa0I5Qjs7QUFDRDtJQUNFLHlCQW5CNkIsRUFvQjlCOztBQUNEO0lBQ0UseUJBckJ3QixFQXNCekI7O0FBQ0Q7SUFDRSx5QkF2QnlCLEVBd0IxQjs7QUFDRDtJQUNFLHVCQXpCb0IsRUEwQnJCOztBQUNEO0lBQ0Usc0JBM0JtQixFQTRCcEI7O0FBWUg7RUFDRSwwQkFBb0Q7RUFyQ3BELFlBWnFCLEVBbUR0Qjs7QUF0Q0M7SUFDRSxjQWJ5QixFQWMxQjs7QUFDRDtJQUNFLHFCQWYwQixFQWdCM0I7O0FBQ0Q7SUFDRSxrQkFqQjZCLEVBa0I5Qjs7QUFDRDtJQUNFLGtCQW5CNkIsRUFvQjlCOztBQUNEO0lBQ0Usa0JBckJ3QixFQXNCekI7O0FBQ0Q7SUFDRSxrQkF2QnlCLEVBd0IxQjs7QUFDRDtJQUNFLGdCQXpCb0IsRUEwQnJCOztBQUNEO0lBQ0UsZUEzQm1CLEVBNEJwQjs7QUFpQkg7RUQ1Q0UsYUFBWTtFQUNaLGNBQWE7RUFDYixvQkMyQ21CO0VEMUNuQixrQkFBaUI7RUFDakIsd0JDeUMrQjtFQTFDL0IsbUJBWnFCO0VBd0RyQixrQkFBaUI7RUFDakIsd0JBQXVCO0VBQ3ZCLHNCQTNEZ0IsRUE2RGpCOztBQS9DQztJQUNFLHFCQWJ5QixFQWMxQjs7QUFDRDtJQUNFLDRCQWYwQixFQWdCM0I7O0FBQ0Q7SUFDRSx5QkFqQjZCLEVBa0I5Qjs7QUFDRDtJQUNFLHlCQW5CNkIsRUFvQjlCOztBQUNEO0lBQ0UseUJBckJ3QixFQXNCekI7O0FBQ0Q7SUFDRSx5QkF2QnlCLEVBd0IxQjs7QUFDRDtJQUNFLHVCQXpCb0IsRUEwQnJCOztBQUNEO0lBQ0Usc0JBM0JtQixFQTRCcEI7O0FBMEJIO0VBQ0UsZUFBYztFQUNkLGVEbkVpRDtFQ29FakQsb0JBQW1CO0VBQ25CLDZCQUE0QjtFQUM1Qiw0QkFBMkI7RUFDM0IsYUFBWTtFQXhEWix1QkFacUIsRUFzRXRCOztBQXpEQztJQUNFLHlCQWJ5QixFQWMxQjs7QUFDRDtJQUNFLGdDQWYwQixFQWdCM0I7O0FBQ0Q7SUFDRSw2QkFqQjZCLEVBa0I5Qjs7QUFDRDtJQUNFLDZCQW5CNkIsRUFvQjlCOztBQUNEO0lBQ0UsNkJBckJ3QixFQXNCekI7O0FBQ0Q7SUFDRSw2QkF2QnlCLEVBd0IxQjs7QUFDRDtJQUNFLDJCQXpCb0IsRUEwQnJCOztBQUNEO0lBQ0UsMEJBM0JtQixFQTRCcEI7O0FBb0NIO0VBNURFLFlBWnFCLEVBMEV0Qjs7QUE3REM7SUFDRSxjQWJ5QixFQWMxQjs7QUFDRDtJQUNFLHFCQWYwQixFQWdCM0I7O0FBQ0Q7SUFDRSxrQkFqQjZCLEVBa0I5Qjs7QUFDRDtJQUNFLGtCQW5CNkIsRUFvQjlCOztBQUNEO0lBQ0Usa0JBckJ3QixFQXNCekI7O0FBQ0Q7SUFDRSxrQkF2QnlCLEVBd0IxQjs7QUFDRDtJQUNFLGdCQXpCb0IsRUEwQnJCOztBQUNEO0lBQ0UsZUEzQm1CLEVBNEJwQjs7QUF3Q0g7RUFDRSxlRHBGYSxFQ3FGZDs7QUFFRDtFQUNFLG9CQUFtQjtFQUNuQixrQkFBaUIsRUFDbEIiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2FuYWx5c2lzLXRva2VuL2FuYWx5c2lzLXRva2VuLmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiJG1hcmdpbi14bDogNDhweDtcbiRtYXJnaW4tbDogMzZweDtcbiRtYXJnaW4tbTogMjRweDtcbiRtYXJnaW4tczogMTJweDtcbiRtYXJnaW4teHM6IDZweDtcblxuJGNvbC1iYWNrZ3JvdW5kOiAjMzAzMDMwO1xuJGNvbC1iYWNrZ3JvdW5kLWRrOiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCBibGFjaywgODApO1xuJGNvbC1iYWNrZ3JvdW5kLWx0OiBtaXgoJGNvbC1iYWNrZ3JvdW5kLCB3aGl0ZSwgODApO1xuJGNvbC1wcm9ncmVzczogd2hpdGU7XG5cbiR3LWxpbS1kb3VibGU6IDEyMDBweDtcbiR3LWxpbS13aWRlcjogMTUwMHB4O1xuJHctd29ya3NwYWNlLW5hcnJvdzogMTEwMHB4O1xuJHctd29ya3NwYWNlLXdpZGU6IDE0MDBweDtcbiRoLXdvcmtzcGFjZS1zaW5nbGU6IDE2MDBweDtcbiRoLXdvcmtzcGFjZS1kb3VibGU6IDgwMHB4O1xuXG5AbWl4aW4gZmxleGVkKCRkaXJlY3Rpb24sICRhbGlnbikge1xuICBmbGV4LWdyb3c6IDE7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiAkZGlyZWN0aW9uO1xuICBmbGV4LXdyYXA6IG5vd3JhcDtcbiAgYWxpZ24taXRlbXM6ICRhbGlnbjtcbn1cblxuQG1peGluIGFyZWEoKSB7XG4gIGJhY2tncm91bmQtY29sb3I6ICRjb2wtYmFja2dyb3VuZC1kaztcbiAgYm9yZGVyOiAxcHggc29saWQgJGNvbC1iYWNrZ3JvdW5kLWx0O1xuICBwYWRkaW5nOiAkbWFyZ2luLW07XG59XG5cbkBtaXhpbiBmaXhlZC1oZWlnaHQoJGhlaWdodCkge1xuICBvdmVyZmxvdy15OiBhdXRvO1xuICBmbGV4OiAwIDAgJGhlaWdodDtcbiAgbWluLWhlaWdodDogJGhlaWdodDtcbiAgbWF4LWhlaWdodDogJGhlaWdodDtcbiAgaGVpZ2h0OiAkaGVpZ2h0O1xufVxuXG4ubWF0LXByb2dyZXNzLXNwaW5uZXIgY2lyY2xlLCAubWF0LXNwaW5uZXIgY2lyY2xlIHtcbiAgc3Ryb2tlOiAkY29sLXByb2dyZXNzO1xufVxuXG4iLCJAaW1wb3J0ICdjb21tb24nO1xuXG46aG9zdCB7XG4gIEBpbmNsdWRlIGZsZXhlZChjb2x1bW4sIHN0cmV0Y2gpO1xuICBmbGV4LWdyb3c6IDA7XG4gIG1hcmdpbjogJG1hcmdpbi14cztcbiAgbWluLXdpZHRoOiA4MHB4O1xufVxuXG4kYm9yZGVyLXdpZHRoOiAxcHg7XG4kY29sLWtpbmQtZGVmYXVsdDogZ3JleTtcbiRjb2wta2luZC1wdW5jdHVhdGlvbjogc2lsdmVyO1xuJGNvbC1raW5kLWVtcHR5OiBkYXJrc2xhdGVibHVlO1xuJGNvbC1raW5kLWNvbmp1bmN0aW9uOiBkYXJrc2FsbW9uO1xuJGNvbC1raW5kLXByZXBvc2l0aW9uOiBsaWdodGNvcmFsO1xuJGNvbC1raW5kLW51bWJlcjogcG93ZGVyYmx1ZTtcbiRjb2wta2luZC1wcm9ub3VuOiBhcXVhbWFyaW5lO1xuJGNvbC1raW5kLXBhcnQ6IGxhdmVuZGVyO1xuJGNvbC1raW5kLWNvbm46IGNyaW1zb247XG5cblxuQG1peGluIGtpbmQtY29sb3IoJHByb3ApIHtcbiAgI3skcHJvcH06ICRjb2wta2luZC1kZWZhdWx0O1xuICAmLnB1bmN0IHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXB1bmN0dWF0aW9uO1xuICB9XG4gICYuZW1wdHkge1xuICAgICN7JHByb3B9OiAkY29sLWtpbmQtZW1wdHk7XG4gIH1cbiAgJi5jb25qIHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLWNvbmp1bmN0aW9uO1xuICB9XG4gICYucHJlcCB7XG4gICAgI3skcHJvcH06ICRjb2wta2luZC1wcmVwb3NpdGlvbjtcbiAgfVxuICAmLm51bSB7XG4gICAgI3skcHJvcH06ICRjb2wta2luZC1udW1iZXI7XG4gIH1cbiAgJi5wcm9ub3VuIHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXByb25vdW47XG4gIH1cbiAgJi5wYXJ0IHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLXBhcnQ7XG4gIH1cbiAgJi5jb25uIHtcbiAgICAjeyRwcm9wfTogJGNvbC1raW5kLWNvbm47XG4gIH1cbn1cblxuXG4uaGVhZGVyIHtcbiAgQGluY2x1ZGUgZmxleGVkKHJvdywgZmxleC1lbmQpO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJvcmRlci1jb2xvcik7XG4gIGJvcmRlci1ib3R0b20tc3R5bGU6IHNvbGlkO1xuICBib3JkZXItYm90dG9tLXdpZHRoOiAkYm9yZGVyLXdpZHRoO1xuICBmb250LXNpemU6IDAuNzVlbTtcbn1cblxuLnRleHQge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiBtaXgoJGNvbC1iYWNrZ3JvdW5kLWRrLCBibGFjaywgNzApO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGNvbG9yKTtcbn1cblxuLmZvb3RlciB7XG4gIEBpbmNsdWRlIGZsZXhlZChyb3csIGZsZXgtc3RhcnQpO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJvcmRlci1jb2xvcik7XG4gIGZvbnQtc2l6ZTogMC43NWVtO1xuICBib3JkZXItdG9wLXN0eWxlOiBzb2xpZDtcbiAgYm9yZGVyLXRvcC13aWR0aDogJGJvcmRlci13aWR0aDtcblxufVxuXG4udGFiYmVkIHtcbiAgcGFkZGluZzogMCAycHg7XG4gIGNvbG9yOiAkY29sLWJhY2tncm91bmRfZGs7XG4gIGZvbnQtd2VpZ2h0OiBib2xkZXI7XG4gIGJvcmRlci10b3AtcmlnaHQtcmFkaXVzOiAycHg7XG4gIGJvcmRlci10b3AtbGVmdC1yYWRpdXM6IDJweDtcbiAgZmxleC1ncm93OiAwO1xuICBAaW5jbHVkZSBraW5kLWNvbG9yKGJhY2tncm91bmQtY29sb3IpO1xufVxuXG4uY29sb3JlZCB7XG4gIEBpbmNsdWRlIGtpbmQtY29sb3IoY29sb3IpO1xufVxuXG4uZmxleGlibGUge1xuICBmbGV4OiAxIDAgJG1hcmdpbi1zO1xufVxuXG4uYmxkIHtcbiAgZm9udC13ZWlnaHQ6IGJvbGRlcjtcbiAgZm9udC1zaXplOiBsYXJnZXI7XG59XG4iXX0= */"
 
 /***/ }),
 
@@ -2122,9 +2543,17 @@ var AnalysisTokenComponent = /** @class */ (function () {
                 this.cls.part = true;
                 break;
             }
+            case _projects_lex_src_lib_model_analysis_result__WEBPACK_IMPORTED_MODULE_2__["TK_CONNECTED"]: {
+                this.tooltip = "Spojen\u00ED";
+                this.cls.conn = true;
+                break;
+            }
             default: {
                 this.tooltip = "Neznámé";
             }
+        }
+        if (this.token.sentenceStart) {
+            this.details = "* " + ((this.details) ? this.details : '');
         }
     };
     AnalysisTokenComponent.fall2str = function (f) {
@@ -2203,7 +2632,7 @@ module.exports = "<div class=\"line\" *ngFor=\"let line of analysis.lines\">\n  
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":host {\n  padding: 36px;\n  flex-grow: 1;\n  background-color: #262626;\n  border: 1px solid #595959;\n  padding: 24px;\n  overflow: auto; }\n\n.line {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: center;\n  flex-grow: 0;\n  justify-content: flex-start;\n  margin: 6px 0; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9hcHAvY29tcG9uZW50cy9hbmFseXNpcy9hbmFseXNpcy5jb21wb25lbnQuc2NzcyIsIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUVBO0VBQ0UsY0NGYTtFREdiLGFBQVk7RUNzQlosMEJBbkJpRDtFQW9CakQsMEJBbkJpRDtFQW9CakQsY0ExQmE7RURJYixlQUFjLEVBQ2Y7O0FBRUQ7RUNTRSxhQUFZO0VBQ1osY0FBYTtFQUNiLG9CRFZtQjtFQ1duQixrQkFBaUI7RUFDakIsb0JEWjJCO0VBQzNCLGFBQVk7RUFDWiw0QkFBMkI7RUFDM0IsY0FBb0IsRUFDckIiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL2FuYWx5c2lzL2FuYWx5c2lzLmNvbXBvbmVudC5zY3NzIiwic291cmNlc0NvbnRlbnQiOlsiQGltcG9ydCAnY29tbW9uJztcblxuOmhvc3Qge1xuICBwYWRkaW5nOiAkbWFyZ2luLWw7XG4gIGZsZXgtZ3JvdzogMTtcbiAgQGluY2x1ZGUgYXJlYSgpO1xuICBvdmVyZmxvdzogYXV0bztcbn1cblxuLmxpbmUge1xuICBAaW5jbHVkZSBmbGV4ZWQocm93LCBjZW50ZXIpO1xuICBmbGV4LWdyb3c6IDA7XG4gIGp1c3RpZnktY29udGVudDogZmxleC1zdGFydDtcbiAgbWFyZ2luOiAkbWFyZ2luLXhzIDA7XG59XG4iLCIkbWFyZ2luLXhsOiA0OHB4O1xuJG1hcmdpbi1sOiAzNnB4O1xuJG1hcmdpbi1tOiAyNHB4O1xuJG1hcmdpbi1zOiAxMnB4O1xuJG1hcmdpbi14czogNnB4O1xuXG4kY29sLWJhY2tncm91bmQ6ICMzMDMwMzA7XG4kY29sLWJhY2tncm91bmQtZGs6IG1peCgkY29sLWJhY2tncm91bmQsIGJsYWNrLCA4MCk7XG4kY29sLWJhY2tncm91bmQtbHQ6IG1peCgkY29sLWJhY2tncm91bmQsIHdoaXRlLCA4MCk7XG5cbiR3LWxpbS1kb3VibGU6IDEyMDBweDtcbiR3LWxpbS13aWRlcjogMTUwMHB4O1xuJHctd29ya3NwYWNlLW5hcnJvdzogMTEwMHB4O1xuJHctd29ya3NwYWNlLXdpZGU6IDE0MDBweDtcbiRoLXdvcmtzcGFjZS1zaW5nbGU6IDE2MDBweDtcbiRoLXdvcmtzcGFjZS1kb3VibGU6IDgwMHB4O1xuXG5AbWl4aW4gZmxleGVkKCRkaXJlY3Rpb24sICRhbGlnbikge1xuICBmbGV4LWdyb3c6IDE7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiAkZGlyZWN0aW9uO1xuICBmbGV4LXdyYXA6IG5vd3JhcDtcbiAgYWxpZ24taXRlbXM6ICRhbGlnbjtcbn1cblxuQG1peGluIGFyZWEoKSB7XG4gIGJhY2tncm91bmQtY29sb3I6ICRjb2wtYmFja2dyb3VuZC1kaztcbiAgYm9yZGVyOiAxcHggc29saWQgJGNvbC1iYWNrZ3JvdW5kLWx0O1xuICBwYWRkaW5nOiAkbWFyZ2luLW07XG59XG5cbkBtaXhpbiBmaXhlZC1oZWlnaHQoJGhlaWdodCkge1xuICBvdmVyZmxvdy15OiBhdXRvO1xuICBmbGV4OiAwIDAgJGhlaWdodDtcbiAgbWluLWhlaWdodDogJGhlaWdodDtcbiAgbWF4LWhlaWdodDogJGhlaWdodDtcbiAgaGVpZ2h0OiAkaGVpZ2h0O1xufVxuXG4iXX0= */"
+module.exports = ".mat-progress-spinner circle, .mat-spinner circle {\n  stroke: white; }\n\n:host {\n  padding: 36px;\n  flex-grow: 1;\n  background-color: #262626;\n  border: 1px solid #595959;\n  padding: 24px;\n  overflow: auto; }\n\n@media screen and (min-width: 1200px) {\n    :host {\n      max-width: 1052px; } }\n\n@media screen and (min-width: 1500px) {\n    :host {\n      max-width: 1352px; } }\n\n.line {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  align-items: center;\n  flex-grow: 0;\n  justify-content: flex-start;\n  margin: 6px 0; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIiwiL2NvZGUvcGVyc29uYWwvdG91cmV0dGUvc3JjL2FwcC9jb21wb25lbnRzL2FuYWx5c2lzL2FuYWx5c2lzLmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQXdDQTtFQUNFLGNBaENrQixFQWlDbkI7O0FDeENEO0VBQ0UsY0RGYTtFQ0diLGFBQVk7RUR1QlosMEJBcEJpRDtFQXFCakQsMEJBcEJpRDtFQXFCakQsY0EzQmE7RUNJYixlQUFjLEVBU2Y7O0FBUEM7SUFORjtNQU9JLGtCQUE0QyxFQU0vQyxFQUFBOztBQUpDO0lBVEY7TUFVSSxrQkFBMEMsRUFHN0MsRUFBQTs7QUFFRDtFREVFLGFBQVk7RUFDWixjQUFhO0VBQ2Isb0JDSG1CO0VESW5CLGtCQUFpQjtFQUNqQixvQkNMMkI7RUFDM0IsYUFBWTtFQUNaLDRCQUEyQjtFQUMzQixjQUFvQixFQUNyQiIsImZpbGUiOiJzcmMvYXBwL2NvbXBvbmVudHMvYW5hbHlzaXMvYW5hbHlzaXMuY29tcG9uZW50LnNjc3MiLCJzb3VyY2VzQ29udGVudCI6WyIkbWFyZ2luLXhsOiA0OHB4O1xuJG1hcmdpbi1sOiAzNnB4O1xuJG1hcmdpbi1tOiAyNHB4O1xuJG1hcmdpbi1zOiAxMnB4O1xuJG1hcmdpbi14czogNnB4O1xuXG4kY29sLWJhY2tncm91bmQ6ICMzMDMwMzA7XG4kY29sLWJhY2tncm91bmQtZGs6IG1peCgkY29sLWJhY2tncm91bmQsIGJsYWNrLCA4MCk7XG4kY29sLWJhY2tncm91bmQtbHQ6IG1peCgkY29sLWJhY2tncm91bmQsIHdoaXRlLCA4MCk7XG4kY29sLXByb2dyZXNzOiB3aGl0ZTtcblxuJHctbGltLWRvdWJsZTogMTIwMHB4O1xuJHctbGltLXdpZGVyOiAxNTAwcHg7XG4kdy13b3Jrc3BhY2UtbmFycm93OiAxMTAwcHg7XG4kdy13b3Jrc3BhY2Utd2lkZTogMTQwMHB4O1xuJGgtd29ya3NwYWNlLXNpbmdsZTogMTYwMHB4O1xuJGgtd29ya3NwYWNlLWRvdWJsZTogODAwcHg7XG5cbkBtaXhpbiBmbGV4ZWQoJGRpcmVjdGlvbiwgJGFsaWduKSB7XG4gIGZsZXgtZ3JvdzogMTtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxleC1kaXJlY3Rpb246ICRkaXJlY3Rpb247XG4gIGZsZXgtd3JhcDogbm93cmFwO1xuICBhbGlnbi1pdGVtczogJGFsaWduO1xufVxuXG5AbWl4aW4gYXJlYSgpIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogJGNvbC1iYWNrZ3JvdW5kLWRrO1xuICBib3JkZXI6IDFweCBzb2xpZCAkY29sLWJhY2tncm91bmQtbHQ7XG4gIHBhZGRpbmc6ICRtYXJnaW4tbTtcbn1cblxuQG1peGluIGZpeGVkLWhlaWdodCgkaGVpZ2h0KSB7XG4gIG92ZXJmbG93LXk6IGF1dG87XG4gIGZsZXg6IDAgMCAkaGVpZ2h0O1xuICBtaW4taGVpZ2h0OiAkaGVpZ2h0O1xuICBtYXgtaGVpZ2h0OiAkaGVpZ2h0O1xuICBoZWlnaHQ6ICRoZWlnaHQ7XG59XG5cbi5tYXQtcHJvZ3Jlc3Mtc3Bpbm5lciBjaXJjbGUsIC5tYXQtc3Bpbm5lciBjaXJjbGUge1xuICBzdHJva2U6ICRjb2wtcHJvZ3Jlc3M7XG59XG5cbiIsIkBpbXBvcnQgJ2NvbW1vbic7XG5cbjpob3N0IHtcbiAgcGFkZGluZzogJG1hcmdpbi1sO1xuICBmbGV4LWdyb3c6IDE7XG4gIEBpbmNsdWRlIGFyZWEoKTtcbiAgb3ZlcmZsb3c6IGF1dG87XG5cbiAgQG1lZGlhIHNjcmVlbiBhbmQgKG1pbi13aWR0aDogJHctbGltLWRvdWJsZSkge1xuICAgIG1heC13aWR0aDogJHctd29ya3NwYWNlLW5hcnJvdyAtIDIqJG1hcmdpbi1tO1xuICB9XG4gIEBtZWRpYSBzY3JlZW4gYW5kIChtaW4td2lkdGg6ICR3LWxpbS13aWRlcikge1xuICAgIG1heC13aWR0aDogJHctd29ya3NwYWNlLXdpZGUgLSAyKiRtYXJnaW4tbTtcbiAgfVxuXG59XG5cbi5saW5lIHtcbiAgQGluY2x1ZGUgZmxleGVkKHJvdywgY2VudGVyKTtcbiAgZmxleC1ncm93OiAwO1xuICBqdXN0aWZ5LWNvbnRlbnQ6IGZsZXgtc3RhcnQ7XG4gIG1hcmdpbjogJG1hcmdpbi14cyAwO1xufVxuIl19 */"
 
 /***/ }),
 
@@ -2272,7 +2701,7 @@ module.exports = "<button mat-flat-button color=\"warn\" (click)=\"setSong(null)
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":host {\n  display: flex;\n  flex-flow: row wrap; }\n\nbutton {\n  margin: 6px; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9hcHAvY29tcG9uZW50cy9zb25nLXNlbGVjdG9yL3Nvbmctc2VsZWN0b3IuY29tcG9uZW50LnNjc3MiLCIvY29kZS9wZXJzb25hbC90b3VyZXR0ZS9zcmMvc3R5bGVzL19jb21tb24uc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFFQTtFQUNFLGNBQWE7RUFDYixvQkFBbUIsRUFDcEI7O0FBRUQ7RUFDRSxZQ0phLEVES2QiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL3Nvbmctc2VsZWN0b3Ivc29uZy1zZWxlY3Rvci5jb21wb25lbnQuc2NzcyIsInNvdXJjZXNDb250ZW50IjpbIkBpbXBvcnQgJ2NvbW1vbic7XG5cbjpob3N0IHtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxleC1mbG93OiByb3cgd3JhcDtcbn1cblxuYnV0dG9uIHtcbiAgbWFyZ2luOiAkbWFyZ2luLXhzXG59XG4iLCIkbWFyZ2luLXhsOiA0OHB4O1xuJG1hcmdpbi1sOiAzNnB4O1xuJG1hcmdpbi1tOiAyNHB4O1xuJG1hcmdpbi1zOiAxMnB4O1xuJG1hcmdpbi14czogNnB4O1xuXG4kY29sLWJhY2tncm91bmQ6ICMzMDMwMzA7XG4kY29sLWJhY2tncm91bmQtZGs6IG1peCgkY29sLWJhY2tncm91bmQsIGJsYWNrLCA4MCk7XG4kY29sLWJhY2tncm91bmQtbHQ6IG1peCgkY29sLWJhY2tncm91bmQsIHdoaXRlLCA4MCk7XG5cbiR3LWxpbS1kb3VibGU6IDEyMDBweDtcbiR3LWxpbS13aWRlcjogMTUwMHB4O1xuJHctd29ya3NwYWNlLW5hcnJvdzogMTEwMHB4O1xuJHctd29ya3NwYWNlLXdpZGU6IDE0MDBweDtcbiRoLXdvcmtzcGFjZS1zaW5nbGU6IDE2MDBweDtcbiRoLXdvcmtzcGFjZS1kb3VibGU6IDgwMHB4O1xuXG5AbWl4aW4gZmxleGVkKCRkaXJlY3Rpb24sICRhbGlnbikge1xuICBmbGV4LWdyb3c6IDE7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiAkZGlyZWN0aW9uO1xuICBmbGV4LXdyYXA6IG5vd3JhcDtcbiAgYWxpZ24taXRlbXM6ICRhbGlnbjtcbn1cblxuQG1peGluIGFyZWEoKSB7XG4gIGJhY2tncm91bmQtY29sb3I6ICRjb2wtYmFja2dyb3VuZC1kaztcbiAgYm9yZGVyOiAxcHggc29saWQgJGNvbC1iYWNrZ3JvdW5kLWx0O1xuICBwYWRkaW5nOiAkbWFyZ2luLW07XG59XG5cbkBtaXhpbiBmaXhlZC1oZWlnaHQoJGhlaWdodCkge1xuICBvdmVyZmxvdy15OiBhdXRvO1xuICBmbGV4OiAwIDAgJGhlaWdodDtcbiAgbWluLWhlaWdodDogJGhlaWdodDtcbiAgbWF4LWhlaWdodDogJGhlaWdodDtcbiAgaGVpZ2h0OiAkaGVpZ2h0O1xufVxuXG4iXX0= */"
+module.exports = ".mat-progress-spinner circle, .mat-spinner circle {\n  stroke: white; }\n\n:host {\n  display: flex;\n  flex-flow: row wrap; }\n\nbutton {\n  margin: 6px; }\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9jb2RlL3BlcnNvbmFsL3RvdXJldHRlL3NyYy9zdHlsZXMvX2NvbW1vbi5zY3NzIiwiL2NvZGUvcGVyc29uYWwvdG91cmV0dGUvc3JjL2FwcC9jb21wb25lbnRzL3Nvbmctc2VsZWN0b3Ivc29uZy1zZWxlY3Rvci5jb21wb25lbnQuc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUF3Q0E7RUFDRSxjQWhDa0IsRUFpQ25COztBQ3hDRDtFQUNFLGNBQWE7RUFDYixvQkFBbUIsRUFDcEI7O0FBRUQ7RUFDRSxZREphLEVDS2QiLCJmaWxlIjoic3JjL2FwcC9jb21wb25lbnRzL3Nvbmctc2VsZWN0b3Ivc29uZy1zZWxlY3Rvci5jb21wb25lbnQuc2NzcyIsInNvdXJjZXNDb250ZW50IjpbIiRtYXJnaW4teGw6IDQ4cHg7XG4kbWFyZ2luLWw6IDM2cHg7XG4kbWFyZ2luLW06IDI0cHg7XG4kbWFyZ2luLXM6IDEycHg7XG4kbWFyZ2luLXhzOiA2cHg7XG5cbiRjb2wtYmFja2dyb3VuZDogIzMwMzAzMDtcbiRjb2wtYmFja2dyb3VuZC1kazogbWl4KCRjb2wtYmFja2dyb3VuZCwgYmxhY2ssIDgwKTtcbiRjb2wtYmFja2dyb3VuZC1sdDogbWl4KCRjb2wtYmFja2dyb3VuZCwgd2hpdGUsIDgwKTtcbiRjb2wtcHJvZ3Jlc3M6IHdoaXRlO1xuXG4kdy1saW0tZG91YmxlOiAxMjAwcHg7XG4kdy1saW0td2lkZXI6IDE1MDBweDtcbiR3LXdvcmtzcGFjZS1uYXJyb3c6IDExMDBweDtcbiR3LXdvcmtzcGFjZS13aWRlOiAxNDAwcHg7XG4kaC13b3Jrc3BhY2Utc2luZ2xlOiAxNjAwcHg7XG4kaC13b3Jrc3BhY2UtZG91YmxlOiA4MDBweDtcblxuQG1peGluIGZsZXhlZCgkZGlyZWN0aW9uLCAkYWxpZ24pIHtcbiAgZmxleC1ncm93OiAxO1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWRpcmVjdGlvbjogJGRpcmVjdGlvbjtcbiAgZmxleC13cmFwOiBub3dyYXA7XG4gIGFsaWduLWl0ZW1zOiAkYWxpZ247XG59XG5cbkBtaXhpbiBhcmVhKCkge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAkY29sLWJhY2tncm91bmQtZGs7XG4gIGJvcmRlcjogMXB4IHNvbGlkICRjb2wtYmFja2dyb3VuZC1sdDtcbiAgcGFkZGluZzogJG1hcmdpbi1tO1xufVxuXG5AbWl4aW4gZml4ZWQtaGVpZ2h0KCRoZWlnaHQpIHtcbiAgb3ZlcmZsb3cteTogYXV0bztcbiAgZmxleDogMCAwICRoZWlnaHQ7XG4gIG1pbi1oZWlnaHQ6ICRoZWlnaHQ7XG4gIG1heC1oZWlnaHQ6ICRoZWlnaHQ7XG4gIGhlaWdodDogJGhlaWdodDtcbn1cblxuLm1hdC1wcm9ncmVzcy1zcGlubmVyIGNpcmNsZSwgLm1hdC1zcGlubmVyIGNpcmNsZSB7XG4gIHN0cm9rZTogJGNvbC1wcm9ncmVzcztcbn1cblxuIiwiQGltcG9ydCAnY29tbW9uJztcblxuOmhvc3Qge1xuICBkaXNwbGF5OiBmbGV4O1xuICBmbGV4LWZsb3c6IHJvdyB3cmFwO1xufVxuXG5idXR0b24ge1xuICBtYXJnaW46ICRtYXJnaW4teHNcbn1cbiJdfQ== */"
 
 /***/ }),
 
@@ -2351,7 +2780,15 @@ __webpack_require__.r(__webpack_exports__);
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 var environment = {
-    production: false
+    production: false,
+    firebase: {
+        apiKey: 'AIzaSyADDzt7iSwdsgTiPeuMdh-tjAk06JbzIVI',
+        authDomain: 'tourette-1f381.firebaseapp.com',
+        databaseURL: 'https://tourette-1f381.firebaseio.com',
+        projectId: 'tourette-1f381',
+        storageBucket: 'tourette-1f381.appspot.com',
+        messagingSenderId: '1093613701382'
+    }
 };
 /*
  * For easier debugging in development mode, you can import the following file

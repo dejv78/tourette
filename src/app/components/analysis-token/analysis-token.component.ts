@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Token} from 'lex';
-import {AMOUNT_MULTIPLE, AMOUNT_SINGLE, AMOUNT_UNKNOWN, GENDER_FEMALE, GENDER_FEMALE_MIDDLE, GENDER_MALE, GENDER_MIDDLE, GENDER_UNKNOWN, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_KND, NUMBER_TYPE_ROW, PRONOUN_TYPE_NEGATIVE, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PUNCT_TYPE_END_OF_SENTENCE, TK_CONJUNCTION, TK_EMPTY_LINE, TK_NUMBER, TK_PART, TK_PREPOSITION, TK_PRONOUN, TK_PUNCTUATION} from '../../../../projects/lex/src/lib/model/analysis-result';
+import {AMOUNT_MULTIPLE, AMOUNT_SINGLE, AMOUNT_UNKNOWN, GENDER_FEMALE, GENDER_FEMALE_MIDDLE, GENDER_MALE, GENDER_MIDDLE, GENDER_UNKNOWN, NUMBER_TYPE_BASIC, NUMBER_TYPE_HAFO, NUMBER_TYPE_KND, NUMBER_TYPE_ROW, PRONOUN_TYPE_NEGATIVE, PRONOUN_TYPE_OWNERSHIP, PRONOUN_TYPE_PERSONAL, PRONOUN_TYPE_POINTING, PRONOUN_TYPE_QUESTION, PRONOUN_TYPE_RELATION, PUNCT_TYPE_END_OF_SENTENCE, TK_CONJUNCTION, TK_CONNECTED, TK_EMPTY_LINE, TK_NUMBER, TK_PART, TK_PREPOSITION, TK_PRONOUN, TK_PUNCTUATION} from '../../../../projects/lex/src/lib/model/analysis-result';
 
 @Component({
   selector: 'app-analysis-token',
@@ -59,9 +59,17 @@ export class AnalysisTokenComponent
         this.cls.part = true;
         break;
       }
+      case TK_CONNECTED: {
+        this.tooltip = `Spojení`;
+        this.cls.conn = true;
+        break;
+      }
       default: {
         this.tooltip = "Neznámé";
       }
+    }
+    if (this.token.sentenceStart) {
+      this.details = "* " + ((this.details) ? this.details : '');
     }
   }
 

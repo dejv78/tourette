@@ -4,7 +4,7 @@
   @include flexed(column, stretch);
   flex-grow: 0;
   margin: $margin-xs;
-  min-width: 60px;
+  min-width: 80px;
 }
 
 $border-width: 1px;
@@ -16,6 +16,7 @@ $col-kind-preposition: lightcoral;
 $col-kind-number: powderblue;
 $col-kind-pronoun: aquamarine;
 $col-kind-part: lavender;
+$col-kind-conn: crimson;
 
 
 @mixin kind-color($prop) {
@@ -40,6 +41,9 @@ $col-kind-part: lavender;
   }
   &.part {
     #{$prop}: $col-kind-part;
+  }
+  &.conn {
+    #{$prop}: $col-kind-conn;
   }
 }
 
@@ -82,4 +86,9 @@ $col-kind-part: lavender;
 
 .flexible {
   flex: 1 0 $margin-s;
+}
+
+.bld {
+  font-weight: bolder;
+  font-size: larger;
 }

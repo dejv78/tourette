@@ -46,10 +46,12 @@
   @media screen and (min-width: $w-lim-double) {
     @include flexed(row, stretch);
     width: $w-workspace-narrow;
+    max-width: $w-workspace-narrow;
     min-height: $h-workspace-double;
   }
   @media screen and (min-width: $w-lim-wider) {
     width: $w-workspace-wide;
+    max-width: $w-workspace-wide;
   }
 }
 
@@ -67,3 +69,22 @@ textarea {
   resize: none;
 }
 
+.fill {
+  flex-grow: 1;
+}
+
+.progress {
+  display: none;
+  flex-flow: row nowrap;
+  align-items: center;
+  color: $col-progress;
+  font-size: 1rem;
+
+  &.visible {
+    display: flex;
+  }
+}
+
+.spinner-text {
+  margin-left: $margin-s;
+}

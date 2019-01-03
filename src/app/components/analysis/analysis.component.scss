@@ -5,6 +5,14 @@
   flex-grow: 1;
   @include area();
   overflow: auto;
+
+  @media screen and (min-width: $w-lim-double) {
+    max-width: $w-workspace-narrow - 2*$margin-m;
+  }
+  @media screen and (min-width: $w-lim-wider) {
+    max-width: $w-workspace-wide - 2*$margin-m;
+  }
+
 }
 
 .line {

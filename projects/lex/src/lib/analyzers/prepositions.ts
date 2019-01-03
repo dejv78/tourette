@@ -1,5 +1,5 @@
 import {TokenAnalyzer} from './token-analyzer';
-import {TK_PREPOSITION, TK_UNKNOWN, Token} from '../model/analysis-result';
+import {TK_AFTER_PREPOSITION, TK_PREPOSITION, TK_UNKNOWN, Token} from '../model/analysis-result';
 
 /**
  * Předložky
@@ -19,13 +19,16 @@ export class Prepositions
     this.preps.set('2/4/7', ['za', 's']);
   }
 
-  analyze(token: Token) {
+  analyze(token: Token, before?: Token, after?: Token) {
     if (token.kind === TK_UNKNOWN) {
       const text = token.text.toLowerCase().trim();
       this.preps.forEach((value, key) => {
         for (const c of value) {
           if (c === text) {
             Prepositions.setPreposition(token, key);
+            if (after) {
+              Prepositions.setAfterPreposition(after, text);
+            }
           }
         }
       });
@@ -36,4 +39,10 @@ export class Prepositions
     token.kind = TK_PREPOSITION;
     token.fall = fall;
   }
+
+  private static setAfterPreposition(after: Token, prep: string) {
+    after.kind = TK_AFTER_PREPOSITION;
+    after.type = prep;
+  }
+
 }

@@ -3,9 +3,12 @@ export const TK_PUNCTUATION: string = 'ip';
 export const TK_EMPTY_LINE: string = '-';
 export const TK_CONJUNCTION: string = 'sp';
 export const TK_PREPOSITION: string = 'přl';
+export const TK_AFTER_PREPOSITION: string = 'po_přl';
 export const TK_NUMBER: string = 'čís';
 export const TK_PRONOUN: string = 'záj';
 export const TK_PART: string = 'čst';
+export const TK_CONNECTED: string = 'conn';
+export const TK_DEAD: string = 'dead';
 
 export const PUNCT_TYPE_END_OF_SENTENCE: string = 'kv';
 
@@ -44,22 +47,28 @@ export class Token {
   public text: string;
   public kind: string;
   public type: string;
-  public syllables: number;
+  public syllables: string;
   public fall: string;
   public gender: string;
   public amount: string;
+  public decorate: boolean;
+  public sentenceStart: boolean;
 
   constructor(text: string, kind?: string) {
     this.text = text;
     this.kind = kind ? kind : TK_UNKNOWN;
   }
 
+  toString() {
+    return this.text;
+  }
 }
 
 export class Line {
+  tokensToRemove: Token[] = [];
   constructor(public tokens: Token[]) {};
 }
 
 export class AnalysisResult {
-  constructor(public lines: Line[]) {};
+  constructor(public lines: Line[], public english: boolean) {};
 }

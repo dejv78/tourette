@@ -7,6 +7,7 @@ $margin-xs: 6px;
 $col-background: #303030;
 $col-background-dk: mix($col-background, black, 80);
 $col-background-lt: mix($col-background, white, 80);
+$col-progress: white;
 
 $w-lim-double: 1200px;
 $w-lim-wider: 1500px;
@@ -35,5 +36,9 @@ $h-workspace-double: 800px;
   min-height: $height;
   max-height: $height;
   height: $height;
+}
+
+.mat-progress-spinner circle, .mat-spinner circle {
+  stroke: $col-progress;
 }
 

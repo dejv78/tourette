@@ -23,6 +23,12 @@
       ],
       "lex/*": [
         "dist/lex/*"
+      ],
+      "deco": [
+        "dist/deco"
+      ],
+      "deco/*": [
+        "dist/deco/*"
       ]
     }
   }
