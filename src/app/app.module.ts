@@ -23,11 +23,12 @@ export function createFLSInstance(http: HttpClient) {
 export function init(songs: FileLoaderService, dict: FileLoaderService, dictp: FileLoaderService) {
   return () => {
     return new Promise(async(resolve) => {
+      console.log('LOC ' + location.origin);
       try {
         await Promise.all([
-          songs.load('assets/songs.json'),
-          dict.load('assets/dictionary.json'),
-          dictp.load('assets/dictionary_prepositions.json'),
+          songs.load(location.origin + 'assets/songs.json'),
+          dict.load(location.origin + 'assets/dictionary.json'),
+          dictp.load(location.origin + 'assets/dictionary_prepositions.json'),
         ]);
         resolve(true);
       } catch (error) {

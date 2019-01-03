@@ -2367,22 +2367,25 @@ function init(songs, dict, dictp) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, Promise.all([
-                                songs.load('assets/songs.json'),
-                                dict.load('assets/dictionary.json'),
-                                dictp.load('assets/dictionary_prepositions.json'),
-                            ])];
+                        console.log('LOC ' + location.origin);
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, Promise.all([
+                                songs.load(location.origin + 'assets/songs.json'),
+                                dict.load(location.origin + 'assets/dictionary.json'),
+                                dictp.load(location.origin + 'assets/dictionary_prepositions.json'),
+                            ])];
+                    case 2:
                         _a.sent();
                         resolve(true);
-                        return [3 /*break*/, 3];
-                    case 2:
+                        return [3 /*break*/, 4];
+                    case 3:
                         error_1 = _a.sent();
                         console.error('Init failed', { error: error_1 });
                         resolve(false);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });
