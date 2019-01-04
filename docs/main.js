@@ -1731,7 +1731,7 @@ var SyllablesCounter = /** @class */ (function () {
             syllables += ((match.length > 1) || (this.longs.includes(match))) ? '_' : '.';
             if (first) {
                 first = false;
-                if ((myArray.index >= 3) && (token.text.substring(0, 2).includes('r'))) {
+                if ((myArray.index >= 3) && (token.text.substring(0, myArray.index).includes('r'))) {
                     syllables = '.' + syllables;
                 }
             }
@@ -1850,7 +1850,7 @@ var DecoService = /** @class */ (function () {
                                     significantTokens.push(token);
                                 }
                             }
-                            var step = (analysis.english ? 5 : 3);
+                            var step = (analysis.english ? 5 : (significantTokens.length > 7) ? 4 : 3);
                             for (var i = significantTokens.length - 2; i >= 0; i -= step) {
                                 significantTokens[i].decorate = true;
                             }

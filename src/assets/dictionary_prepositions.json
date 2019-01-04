@@ -1,111 +1,109 @@
 {
   "v": {
-    "..": ["řiti", "bradě", "gumě", "tlamě", "hovně", "ruce", "Lucce"],
-    "_.": ["díře", "píči", "ráně", "čůze", "hlíně"],
+    "..": ["řiti", "gumě", "tlamě", "hovně", "ruce", "noze"],
+    "_.": ["díře", "píči", "ráně", "hlíně", "klíně"],
     "._": ["koulích", "gatích"],
-    "...": ["prdeli", "termosce", "lavoru"],
-    "._.": ["pytlíku", "kyblíku"],
-    "__.": ["čůráku"]
+    "...": ["prdeli", "termosce", "lavoru", "horroru"],
+    "._.": ["pytlíku", "kyblíku"]
   },
   "ve": {
     "..": ["voku", "vaně"],
-    "_.": ["víně"],
-    "._": ["sračkách", "vejcích", "třetí"],
-    "...": ["vemeni", "voleji"],
+    "._": ["sračkách", "třetí", "smetí"],
+    "...": ["voleji"],
     "._.": ["vemínku", "volátku"],
     "_..": ["vánici", "válendě"]
   },
   "do": {
-    "..": ["voka", "gumy", "hovna", "nohy", "flašky", "zadku"],
+    "..": ["voka", "hovna", "nohy", "flašky", "zadku", "rakve", "mozku", "řitě"],
     "_.": ["díry", "ďoury", "roury", "coury", "píči", "klína"],
-    "._": ["paďous", "koulí", "řití"],
-    "...": ["prdele", "paštiky", "šrajtofle", "palice", "postele", "slepice", "kuřbuřta"],
-    "._.": ["cikána", "polívky", "prdýlky", "kantýny", "kakáče", "lahváče"],
-    "_..": ["pálenky"],
+    "._": ["koulí", "řití"],
+    "...": ["prdele", "šrajtofle", "palice", "postele", "slepice"],
+    "._.": ["polívky", "análu", "kantýny", "lahváče", "penálu", "futrálu"],
     "_._": ["záhrobí"]
   },
   "z": {
-    "..": ["voka", "gumy", "hovna", "nohy", "flašky"],
-    "_.": ["díry", "ďoury", "roury", "coury", "píči"],
-    "._": ["koulí"],
-    "...": ["prdele", "paštiky", "palice", "postele", "milenky"],
-    "._.": ["cikána", "garáže", "análu", "kantýny", "kakáče", "lahváče"],
+    "..": ["voka", "gumy", "hovna", "flašky", "nosu", "ucha"],
+    "_.": ["ďoury", "píči"],
+    "...": ["prdele", "postele", "tlampače", "otvoru"],
+    "._.": ["garáže", "análu", "kantýny", "kakáče", "lahváče", "penálu", "futrálu"],
     "_..": ["pálenky"],
     "..._": ["rozmrdaných", "rozjebaných"]
   },
   "ze": {
-    "..": ["zadku"],
+    ".": ["střev"],
+    "..": ["zadku", "střeva"],
     "_.": ["zátek"],
-    "._": ["řití", "špuntů"],
-    "...": ["šrajtofle", "slepice", "milenky"],
-    "._.": ["zahrady", "Šumavy"],
+    "._": ["slipů", "špuntů"],
+    "...": ["šrajtofle", "slepice", "zahrady"],
     "_..": ["záhrobí"]
   },
   "s": {
-    "..": ["prstem", "gumou", "hovnem", "dildem"],
-    "._": ["nohou", "rukou", "kundou"],
-    "__": ["koulí", "dírou", "courou"],
-    ".._": ["prdelí", "paštikou", "palicí", "postelí", "opicí"],
-    "...": ["lososem", "otvorem"],
-    "._.": ["kolíkem", "cikánem", "klobásou", "kakáčem", "lahváčem"],
+    "..": ["prstem", "gumou", "hovnem", "dildem", "buřtem"],
+    "._": ["nohou", "rukou"],
+    "__": ["koulí", "dírou", "lůzou"],
+    ".._": ["prdelí", "paštikou", "opicí", "hořčicí"],
+    "...": ["lososem", "otvorem", "pukavcem"],
+    "._.": ["kolíkem", "cikánem", "klobásou", "kakáčem", "lahváčem", "fištrónem"],
     "_._": ["pálenkou"],
-    "....": ["lubrikantem"]
+    "....": ["lubrikantem"],
+    "._..": ["vibrátorem"],
+    ".__.": ["otvírákem"]
   },
   "se": {
-    "..": ["zadkem", "špuntem"],
+    "..": ["zadkem", "špuntem", "syflem"],
     "_.": ["sádlem", "žrádlem"],
     ".._": ["šrajtoflí", "slepicí"],
     "._.": ["salámem", "slamníkem"],
     "_._": ["záhrobím"]
   },
   "pod": {
-    "..": ["zadkem", "špuntem", "pupkem", "parou", "tričkem"],
-    "._": ["botou", "vložkou"],
-    "_.": ["víkem", "žrádlem", "šroubem"],
-    "...": ["slipama", "tangama" ,"vlasama", "poklopem", "mobilem"],
-    ".._": ["prdelí", "slepicí", "čepicí"],
+    "..": ["zadkem", "pupkem", "parou", "tričkem"],
+    "._": ["botou", "vložkou", "pleší"],
+    "_.": ["víkem", "údem", "fáčem"],
+    "...": ["slipama", "tangama", "vlasama", "poklopem"],
+    ".._": ["prdelí", "čepicí"],
     "._.": ["papírem", "slamníkem", "kanálem"],
     "_..": ["záchodem", "táborem"],
     "_._": ["zábradlím"],
     "....": ["splachovadlem"]
   },
   "nad": {
-    "..": ["zadkem", "pornem", "pupkem", "dildem"],
-    "._": ["botou", "vložkou"],
+    "..": ["zadkem", "pornem", "pupkem"],
+    "._": ["řekou"],
     "_.": ["víkem", "žrádlem"],
-    "...": ["koulemi", "fousama", "poklopem"],
+    "...": ["chobotem", "fousama", "poklopem"],
     ".._": ["podpaždím", "mrtvolou", "prdelí"],
-    "._.": ["vagínou", "pupíkem", "kanálem", "kakáčem", "jebákem"],
+    "._.": ["mučírnou", "pupíkem", "kanálem", "jebákem"],
     "_..": ["záchodem", "táborem"],
-    "_._": ["páprdou"],
-    "....": ["splachovadlem"]
+    "....": ["splachovadlem", "popravištěm"],
+    "..._": ["bradavicí"]
   },
   "na": {
-    "..": ["zadku", "piču", "břicho", "hovno", "koze", "prstech", "hajzlu"],
-    "._": ["kozách", "ceckách", "lyžích", "hrobě", "pyskách"],
+    "..": ["zadku", "piču", "břicho", "hovno", "koze", "prstech", "hajzlu", "grilu", "žemli"],
+    "._": ["kozách", "lyžích", "hrobě", "pyskách", "moták"],
     "_.": ["sádle", "ptáku", "tílku"],
     "__": ["koulích", "saních"],
-    "...": ["kundičce", "prdeli", "poradě", "bradavce", "papuli"],
-    ".._": ["mrtvolách", "postelích", "prdelích"],
+    "...": ["prdeli", "poradě", "bradavce", "papuli"],
+    ".._": ["mrtvolách", "postelích"],
     "._.": ["kolíku", "pupíku", "análu", "salámu", "polštáři"],
-    "_..": ["záchodě"],
-    "_._": ["páprdou"],
+    "_..": ["záchodě", "píchačky"],
     "....": ["splachovadle"]
   },
   "u": {
-    "..": ["zadku", "piče", "hoven", "hajzlu"],
-    "._": ["sraní", "chcaní", "pysků", "cecků"],
-    "_.": ["ptáka", "ptáku", "tílku", "sraní"],
+    "..": ["zadku", "hoven", "hajzlu", "grilu", "porna", "ponku"],
+    "._": ["chcaní", "buřtů"],
+    "_.": ["ptáka"],
     "__": ["koulí", "dýní"],
     "...": ["mrtvoly", "prdele", "bradavky"],
     "._.": ["kolíku", "pupíku", "análu", "salámu"],
     "_..": ["záchoda"],
+    "__.": ["píchání"],
     "....": ["splachovadla"]
   },
   "k": {
-    "..": ["zadku", "piči", "hovnu", "hajzlu", "řiti", "Mařce"],
-    "._": ["řitím", "chcankám", "pyskům", "dírám", "dildům"],
-    "_.": ["píče", "chcankám", "pyskům", "dírám", "tchýni"],
+    "..": ["zadku", "piči", "hovnu", "řiti", "Mařce"],
+    "._": ["řitím", "pyskům"],
+    "_.": ["píče", "tchýni"],
     "...": ["mrtvole", "popelnici", "bradavce"],
     "._.": ["pupíku", "análu", "salámu"],
     "_..": ["záchodu"],
@@ -117,9 +115,13 @@
     "_.": ["chcankám"],
     "__": ["koulím"],
     "...": ["kundičce"],
-    "._.": ["kolíku", "komínu"],
+    "._.": ["kolíku", "komínu", "kaďáku"],
     "_..": ["kánoji"],
     "....": ["kolomazi"]
+  },
+  "při": {
+    "._": ["sraní"],
+    "...": ["obědě"]
   }
 
 }

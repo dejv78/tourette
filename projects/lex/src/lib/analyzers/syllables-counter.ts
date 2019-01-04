@@ -22,7 +22,7 @@ export class SyllablesCounter
       syllables += ((match.length > 1) || (this.longs.includes(match))) ? '_' : '.';
       if (first) {
         first = false;
-        if ((myArray.index >= 3) && (token.text.substring(0, 2).includes('r'))) {
+        if ((myArray.index >= 3) && (token.text.substring(0, myArray.index).includes('r'))) {
           syllables = '.' + syllables;
         }
       }

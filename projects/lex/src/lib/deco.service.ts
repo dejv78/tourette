@@ -38,7 +38,7 @@ export class DecoService {
             significantTokens.push(token);
           }
         }
-        const step = (analysis.english ? 5 : 3);
+        const step = (analysis.english ? 5 : (significantTokens.length > 7) ? 4 : 3);
         for (let i = significantTokens.length-2; i >= 0; i -= step) {
           significantTokens[i].decorate = true;
         }
